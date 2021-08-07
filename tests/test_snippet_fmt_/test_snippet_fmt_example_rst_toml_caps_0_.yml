@@ -1,0 +1,25 @@
+err:
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -75,13 +75,11 @@'
+- ' .. code-block:: TOML'
+- ''
+- " \t[project]"
+- "+\tname = \"my-project\""
+- "+\tversion = \"1.2.3\""
+- ''
+- '-'
+- "-\tname   =   'my-project'"
+- '-'
+- '-'
+- "-\tversion=\"1.2.3\""
+- "-\tlicense = {file = \"LICENSE\"}"
+- "+\t[project.license]"
+- "+\tfile = \"LICENSE\""
+- ''
+- ''
+- ' .. code:: TOML'
+- ''
+- ''

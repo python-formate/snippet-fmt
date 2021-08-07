@@ -1,0 +1,121 @@
+[build-system]
+requires = [ "whey",]
+build-backend = "whey"
+
+[project]
+name = "snippet-fmt"
+version = "0.0.0"
+description = "Format and validate code snippets in reStructuredText files."
+readme = "README.rst"
+keywords = [ "docs", "formatting", "linting",]
+dynamic = [ "requires-python", "classifiers", "dependencies",]
+
+[[project.authors]]
+name = "Dominic Davis-Foster"
+email = "dominic@davis-foster.co.uk"
+
+
+[project.license]
+file = "LICENSE"
+
+[project.urls]
+Homepage = "https://github.com/repo-helper/snippet-fmt"
+"Issue Tracker" = "https://github.com/repo-helper/snippet-fmt/issues"
+"Source Code" = "https://github.com/repo-helper/snippet-fmt"
+Documentation = "https://snippet-fmt.readthedocs.io/en/latest"
+
+[project.scripts]
+snippet-fmt = "snippet_fmt.__main__:main"
+
+[tool.whey]
+base-classifiers = [ "Development Status :: 4 - Beta", "Environment :: Console", "Intended Audience :: Developers",]
+python-versions = [ "3.6", "3.7", "3.8", "3.9",]
+python-implementations = [ "CPython", "PyPy",]
+platforms = [ "Windows", "macOS", "Linux",]
+license-key = "MIT"
+package = "snippet_fmt"
+
+[tool.sphinx-pyproject]
+github_username = "repo-helper"
+github_repository = "snippet-fmt"
+author = "Dominic Davis-Foster"
+project = "snippet-fmt"
+copyright = "2021 Dominic Davis-Foster"
+language = "en"
+package_root = "snippet_fmt"
+extensions = [
+    "sphinx_toolbox",
+    "sphinx_toolbox.more_autodoc",
+    "sphinx_toolbox.more_autosummary",
+    "sphinx_toolbox.documentation_summary",
+    "sphinx_toolbox.tweaks.param_dash",
+    "sphinx_toolbox.tweaks.latex_layout",
+    "sphinx_toolbox.tweaks.latex_toc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinxcontrib.extras_require",
+    "sphinx.ext.todo",
+    "sphinxemoji.sphinxemoji",
+    "notfound.extension",
+    "sphinx_copybutton",
+    "sphinxcontrib.default_values",
+    "sphinxcontrib.toctree_plus",
+    "sphinx_debuginfo",
+    "seed_intersphinx_mapping",
+    "attr_utils.autoattrs",
+    "sphinx_click",
+    "sphinx_toolbox.pre_commit",
+    "sphinx_toolbox_experimental.html_section",
+    "sphinx_toolbox_experimental.autosummary_widths",
+    "sphinx_toolbox_experimental.missing_xref",
+]
+sphinxemoji_style = "twemoji"
+gitstamp_fmt = "%d %b %Y"
+templates_path = [ "_templates",]
+html_static_path = [ "_static",]
+source_suffix = ".rst"
+master_doc = "index"
+suppress_warnings = [ "image.nonlocal_uri",]
+pygments_style = "default"
+html_theme = "furo"
+html_theme_path = [ "../..",]
+html_show_sourcelink = true
+toctree_plus_types = [
+    "class",
+    "confval",
+    "data",
+    "directive",
+    "enum",
+    "exception",
+    "flag",
+    "function",
+    "namedtuple",
+    "protocol",
+    "role",
+    "typeddict",
+]
+add_module_names = false
+hide_none_rtype = true
+all_typevars = true
+overloads_location = "bottom"
+autodoc_exclude_members = [
+    "__dict__",
+    "__class__",
+    "__dir__",
+    "__weakref__",
+    "__module__",
+    "__annotations__",
+    "__orig_bases__",
+    "__parameters__",
+    "__subclasshook__",
+    "__init_subclass__",
+    "__attrs_attrs__",
+    "__init__",
+    "__new__",
+    "__getnewargs__",
+    "__abstractmethods__",
+    "__hash__",
+]
+
+[tool.snippet-fmt.languages.toml]
+reformat = true

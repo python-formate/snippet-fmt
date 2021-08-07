@@ -1,0 +1,27 @@
+err:
+- '.../example.rst:87: TomlDecodeError: Key name found without value. Reached end
+  of line. (line 10 column 2 char 86)'
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -75,13 +75,11 @@'
+- ' .. code-block:: TOML'
+- ''
+- " \t[project]"
+- "+\tname = \"my-project\""
+- "+\tversion = \"1.2.3\""
+- ''
+- '-'
+- "-\tname   =   'my-project'"
+- '-'
+- '-'
+- "-\tversion=\"1.2.3\""
+- "-\tlicense = {file = \"LICENSE\"}"
+- "+\t[project.license]"
+- "+\tfile = \"LICENSE\""
+- ''
+- ''
+- ' .. code:: TOML'
+- ''
+- ''

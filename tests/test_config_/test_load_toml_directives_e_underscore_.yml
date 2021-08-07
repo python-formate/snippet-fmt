@@ -1,0 +1,12 @@
+directives:
+- code-cell
+- sourcecode
+languages:
+  INI: {}
+  JSON: {}
+  TOML: {}
+  ini: {}
+  json: {}
+  python: {}
+  python3: {}
+  toml: {}

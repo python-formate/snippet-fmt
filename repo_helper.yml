@@ -1,0 +1,71 @@
+# Configuration for 'repo_helper' (https://github.com/domdfcoding/repo_helper)
+---
+modname: 'snippet-fmt'
+copyright_years: '2021'
+author: 'Dominic Davis-Foster'
+email: 'dominic@davis-foster.co.uk'
+username: 'repo-helper'
+assignee: 'domdfcoding'
+version: '0.0.0'
+license: 'MIT'
+short_desc: 'Format and validate code snippets in reStructuredText files.'
+
+enable_conda: false
+use_whey: true
+min_coverage: 95
+sphinx_html_theme: furo
+preserve_custom_theme: true
+mypy_version: "0.910"
+
+conda_channels:
+ - conda-forge
+
+python_versions:
+ - '3.6'
+ - '3.7'
+ - '3.8'
+ - '3.9'
+ - 3.10-dev
+ - pypy36
+ - pypy37
+
+keywords:
+ - formatting
+ - linting
+ - docs
+
+classifiers:
+ - "Development Status :: 4 - Beta"
+ - "Intended Audience :: Developers"
+ - 'Environment :: Console'
+
+console_scripts:
+ - "snippet-fmt=snippet_fmt.__main__:main"
+
+extra_sphinx_extensions:
+ - attr_utils.autoattrs
+ - sphinx_click
+ - sphinx_toolbox.pre_commit
+ - sphinx_toolbox_experimental.html_section
+ - sphinx_toolbox_experimental.autosummary_widths
+# - sphinx_toolbox_experimental.changelog
+ - sphinx_toolbox_experimental.missing_xref
+
+#sphinx_conf_epilogue:
+# - "\tfrom sphinx_toolbox.latex import replace_unknown_unicode"
+# - "\tapp.connect('build-finished', replace_unknown_unicode)"
+# - nitpicky = True
+
+#mypy_deps:
+# - types-attrs>=0.1.0
+
+exclude_files:
+ - contributing
+
+#mypy_plugins:
+# - attr_utils.mypy_plugin
+
+#third_party_version_matrix:
+# click:
+#  - 7
+#  - 8

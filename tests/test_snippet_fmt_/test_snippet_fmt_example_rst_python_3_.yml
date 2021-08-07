@@ -1,0 +1,24 @@
+err:
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -42,12 +42,11 @@'
+- ''
+- ' .. sourcecode:: python'
+- ''
+- "-\tprint (  'Hello World'"
+- "+\tprint(\"Hello World\")"
+- ''
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tfor item in [a, b, c]:"
+- "+\t\tif item:"
+- "+\t\t\tprint(item)"
+- ''
+- ''
+- ' .. parsed-literal:: python'
+- ''
+- ''

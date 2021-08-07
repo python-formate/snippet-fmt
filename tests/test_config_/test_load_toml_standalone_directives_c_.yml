@@ -1,0 +1,11 @@
+directives:
+- jupyter-execute
+languages:
+  INI: {}
+  JSON: {}
+  TOML: {}
+  ini: {}
+  json: {}
+  python: {}
+  python3: {}
+  toml: {}

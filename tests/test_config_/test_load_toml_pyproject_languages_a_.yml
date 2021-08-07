@@ -1,0 +1,20 @@
+directives:
+- code
+- code-block
+- sourcecode
+languages:
+  INI:
+    reformat: true
+  JSON:
+    reformat: true
+  json:
+    indent: 2
+    reformat: true
+  python:
+    config-file: formate.toml
+    reformat: true
+  python3:
+    config-file: pyproject.toml
+    reformat: true
+  toml:
+    reformat: true

@@ -1,0 +1,41 @@
+err:
+- '.../example.rst:100: TomlDecodeError: Unbalanced quotes (line 2 column 19 char
+  28)'
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -11,23 +11,21 @@'
+- ''
+- ' .. code-block:: python3'
+- ''
+- "-\tprint (  'Hello World'"
+- "+\tprint(\"Hello World\")"
+- ''
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tfor item in [a, b, c]:"
+- "+\t\tif item:"
+- "+\t\t\tprint(item)"
+- ''
+- ''
+- ' .. code-cell:: python3'
+- " \t:count: 1"
+- ''
+- "-\tprint (  'Hello World'"
+- "+\tprint(\"Hello World\")"
+- ''
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tfor item in [a, b, c]:"
+- "+\t\tif item:"
+- "+\t\t\tprint(item)"
+- ''
+- ''
+- ' .. code:: python'
+- ''
+- ''

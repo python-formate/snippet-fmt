@@ -1,0 +1,13 @@
+directives:
+- code
+- code-block
+- sourcecode
+languages:
+  INI: {}
+  JSON: {}
+  TOML: {}
+  ini: {}
+  json: {}
+  python: {}
+  python3: {}
+  toml: {}

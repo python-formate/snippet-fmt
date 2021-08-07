@@ -1,0 +1,6 @@
+err:
+- '.../example.rst:87: TomlDecodeError: Key name found without value. Reached end
+  of line. (line 10 column 2 char 86)'
+- ''
+out:
+- ''

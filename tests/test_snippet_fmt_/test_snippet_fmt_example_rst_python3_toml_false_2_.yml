@@ -1,0 +1,24 @@
+err:
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -22,12 +22,11 @@'
+- ' .. code-cell:: python3'
+- " \t:count: 1"
+- ''
+- "-\tprint (  'Hello World'"
+- "+\tprint(\"Hello World\")"
+- ''
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tfor item in [a, b, c]:"
+- "+\t\tif item:"
+- "+\t\t\tprint(item)"
+- ''
+- ''
+- ' .. code:: python'
+- ''
+- ''
