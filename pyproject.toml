@@ -30,7 +30,7 @@ snippet-fmt = "snippet_fmt.__main__:main"
 [tool.whey]
 base-classifiers = [ "Development Status :: 4 - Beta", "Environment :: Console", "Intended Audience :: Developers",]
 python-versions = [ "3.6", "3.7", "3.8", "3.9",]
-python-implementations = [ "CPython", "PyPy",]
+python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "MIT"
 package = "snippet_fmt"
