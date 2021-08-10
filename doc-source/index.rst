@@ -124,6 +124,7 @@ Installation
 
 .. end installation
 
+
 .. toctree::
 	:hidden:
 
@@ -138,7 +139,7 @@ Installation
 	configuration
 	changelog
 	Source
-
+	license
 
 .. toctree::
 	:maxdepth: 3
@@ -147,7 +148,6 @@ Installation
 
 	api/snippet-fmt
 	api/*
-
 
 .. sidebar-links::
 	:github:
