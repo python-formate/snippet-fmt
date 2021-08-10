@@ -28,7 +28,12 @@ Documentation = "https://snippet-fmt.readthedocs.io/en/latest"
 snippet-fmt = "snippet_fmt.__main__:main"
 
 [tool.whey]
-base-classifiers = [ "Development Status :: 4 - Beta", "Environment :: Console", "Intended Audience :: Developers",]
+base-classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Typing :: Typed",
+]
 python-versions = [ "3.6", "3.7", "3.8", "3.9",]
 python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
@@ -117,6 +122,13 @@ autodoc_exclude_members = [
     "__abstractmethods__",
     "__hash__",
 ]
+
+[tool.mypy]
+python_version = "3.6"
+namespace_packages = true
+check_untyped_defs = true
+warn_unused_ignores = true
+no_implicit_optional = true
 
 [tool.snippet-fmt.languages.toml]
 reformat = true
