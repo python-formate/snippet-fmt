@@ -124,6 +124,7 @@ Installation
 
 .. end installation
 
+
 .. toctree::
 	:hidden:
 
@@ -138,7 +139,7 @@ Installation
 	configuration
 	changelog
 	Source
-
+	license
 
 .. toctree::
 	:maxdepth: 3
@@ -148,12 +149,11 @@ Installation
 	api/snippet-fmt
 	api/*
 
-
 .. sidebar-links::
 	:github:
 	:pypi: snippet-fmt
 
-	Contributing Guide<https://contributing.repo-helper.uk>
+	Contributing Guide<https://contributing-to-formate.readthedocs.io>
 
 
 .. start links
@@ -162,6 +162,6 @@ Installation
 
 	View the :ref:`Function Index <genindex>` or browse the `Source Code <_modules/index.html>`__.
 
-	:github:repo:`Browse the GitHub Repository <repo-helper/snippet-fmt>`
+	:github:repo:`Browse the GitHub Repository <python-formate/snippet-fmt>`
 
 .. end links

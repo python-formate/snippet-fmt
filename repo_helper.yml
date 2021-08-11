@@ -4,7 +4,7 @@ modname: 'snippet-fmt'
 copyright_years: '2021'
 author: 'Dominic Davis-Foster'
 email: 'dominic@davis-foster.co.uk'
-username: 'repo-helper'
+username: 'python-formate'
 assignee: 'domdfcoding'
 version: '0.0.0'
 license: 'MIT'
@@ -26,8 +26,6 @@ python_versions:
  - '3.8'
  - '3.9'
  - 3.10-dev
- - pypy36
- - pypy37
 
 keywords:
  - formatting
@@ -62,10 +60,7 @@ extra_sphinx_extensions:
 exclude_files:
  - contributing
 
-#mypy_plugins:
-# - attr_utils.mypy_plugin
-
-#third_party_version_matrix:
-# click:
-#  - 7
-#  - 8
+third_party_version_matrix:
+ click:
+  - 7
+  - 8
