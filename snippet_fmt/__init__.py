@@ -143,7 +143,7 @@ class RSTReformatter:
 
 	def process_match(self, match: Match[str]) -> str:
 		"""
-		Process a :class:`re.Match` for a single code block.
+		Process a :meth:`re.Match <re.Match.expand>` for a single code block.
 
 		:param match:
 		"""

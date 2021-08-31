@@ -156,6 +156,12 @@ Installation
 	Contributing Guide<https://contributing-to-formate.readthedocs.io>
 
 
+.. sidebar-links::
+	:caption: Links
+	:github:
+	:pypi: snippet-fmt
+
+
 .. start links
 
 .. only:: html
