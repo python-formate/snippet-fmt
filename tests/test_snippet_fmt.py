@@ -10,7 +10,7 @@ from coincidence import AdvancedDataRegressionFixture, AdvancedFileRegressionFix
 from coincidence.params import param
 from consolekit.terminal_colours import strip_ansi
 from consolekit.testing import CliRunner, Result
-from domdf_python_tools.paths import PathPlus, in_directory
+from domdf_python_tools.paths import PathPlus, TemporaryPathPlus, in_directory
 
 # this package
 from snippet_fmt import SnippetFmtConfigDict, reformat_file
@@ -68,6 +68,26 @@ languages = pytest.mark.parametrize(
 filenames = pytest.mark.parametrize("filename", [param("example.rst", idx=0)])
 
 
+@pytest.fixture()
+def custom_entry_point(monkeypatch):
+	with TemporaryPathPlus() as tmpdir:
+		monkeypatch.syspath_prepend(str(tmpdir))
+
+		dist_info = tmpdir / "snippet_fmt_demo-0.0.0.dist-info"
+		dist_info.maybe_make(parents=True)
+		(dist_info / "entry_points.txt").write_lines([
+				"[snippet_fmt.formatters]",
+				"python3 = snippet_fmt_demo:fake_format",
+				])
+
+		(tmpdir / "snippet_fmt_demo.py").write_lines([
+				"def fake_format(*args, **kwargs):",
+				"\treturn 'Hello World'",
+				])
+
+		yield
+
+
 class TestReformatFile:
 
 	@directives
@@ -83,6 +103,31 @@ class TestReformatFile:
 			advanced_data_regression: AdvancedDataRegressionFixture,
 			capsys,
 			):
+		(tmp_pathplus / filename).write_text((source_dir / filename).read_text())
+		(tmp_pathplus / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus):
+			reformat_file(tmp_pathplus / filename, config)
+
+		advanced_file_regression.check_file(tmp_pathplus / filename)
+		check_out(capsys.readouterr(), tmp_pathplus, advanced_data_regression)
+
+	@filenames
+	def test_snippet_fmt_custom_entry_point(
+			self,
+			filename: str,
+			tmp_pathplus: PathPlus,
+			advanced_file_regression: AdvancedFileRegressionFixture,
+			advanced_data_regression: AdvancedDataRegressionFixture,
+			capsys,
+			custom_entry_point
+			):
+
+		languages = {"python3": {"reformat": True}}
+		directives = ["code-block", "code-cell"]
+
 		(tmp_pathplus / filename).write_text((source_dir / filename).read_text())
 		(tmp_pathplus / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
 

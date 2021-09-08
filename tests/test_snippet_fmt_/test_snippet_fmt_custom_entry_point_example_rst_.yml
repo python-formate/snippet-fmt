@@ -1,0 +1,33 @@
+err:
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -11,23 +11,13 @@'
+- ''
+- ' .. code-block:: python3'
+- ''
+- "-\tprint (  'Hello World'"
+- '-'
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tHello World"
+- ''
+- ''
+- ' .. code-cell:: python3'
+- " \t:count: 1"
+- ''
+- "-\tprint (  'Hello World'"
+- '-'
+- "-\t)"
+- '-'
+- "-\tfor   item in [a,b,c]   :"
+- "-\t\t\t\tif item: print(item)"
+- "+\tHello World"
+- ''
+- ''
+- ' .. code:: python'
+- ''
+- ''

@@ -2,5 +2,6 @@ click>=8.0.1
 consolekit>=1.2.3
 dom-toml>=0.5.0
 domdf-python-tools>=3.0.0
+entrypoints>=0.3
 formate>=0.4.9
 typing-extensions>=3.10.0.0

@@ -38,6 +38,7 @@ from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 
 # 3rd party
 import click
+import entrypoints  # type: ignore
 from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.utils import coloured_diff
 from domdf_python_tools.paths import PathPlus
@@ -73,16 +74,6 @@ class CodeBlockError(NamedTuple):
 	exc: Exception
 
 
-_formatters: Dict[str, Formatter] = {
-		"bash": noformat,
-		"python": format_python,
-		"python3": format_python,
-		"toml": format_toml,
-		"ini": format_ini,
-		"json": format_json,
-		}
-
-
 class RSTReformatter:
 	"""
 	Reformat code snippets in a reStructuredText file.
@@ -109,6 +100,16 @@ class RSTReformatter:
 		self._unformatted_source = self.file_to_format.read_text()
 		self._reformatted_source: Optional[str] = None
 		self.errors = []
+
+		self._formatters: Dict[str, Formatter] = {
+				# "bash": noformat,
+				# "python": format_python,
+				"python3": format_python,
+				"toml": format_toml,
+				"ini": format_ini,
+				"json": format_json,
+				}
+		self.load_extra_formatters()
 
 	def run(self) -> bool:
 		"""
@@ -152,7 +153,8 @@ class RSTReformatter:
 
 		if lang in self.config["languages"]:
 			lang_config = self.config["languages"][lang]
-			formatter = _formatters.get(lang.lower(), noformat)
+			# TODO: show warning if not found and in "strict" mode
+			formatter = self._formatters.get(lang.lower(), noformat)
 		else:
 			lang_config = {}
 			formatter = noformat
@@ -213,6 +215,17 @@ class RSTReformatter:
 			yield
 		except Exception as e:
 			self.errors.append(CodeBlockError(match.start(), e))
+
+	def load_extra_formatters(self):
+		group = "snippet_fmt.formatters"
+
+		for distro_config, _ in entrypoints.iter_files_distros():
+			if group in distro_config:
+				for name, epstr in distro_config[group].items():
+					with contextlib.suppress(entrypoints.BadEntryPoint, ImportError):
+						# TODO: show warning for bad entry point if verbose, or "strict"?
+						ep = entrypoints.EntryPoint.from_string(epstr, name)
+						self._formatters[name] = ep.load()
 
 
 def reformat_file(
