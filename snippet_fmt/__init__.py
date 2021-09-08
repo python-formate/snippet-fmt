@@ -102,8 +102,8 @@ class RSTReformatter:
 		self.errors = []
 
 		self._formatters: Dict[str, Formatter] = {
-				# "bash": noformat,
-				# "python": format_python,
+				"bash": noformat,
+				"python": format_python,
 				"python3": format_python,
 				"toml": format_toml,
 				"ini": format_ini,
@@ -216,7 +216,11 @@ class RSTReformatter:
 		except Exception as e:
 			self.errors.append(CodeBlockError(match.start(), e))
 
-	def load_extra_formatters(self):
+	def load_extra_formatters(self) -> None:
+		"""
+		Load custom formatters defined via entry points.
+		"""
+
 		group = "snippet_fmt.formatters"
 
 		for distro_config, _ in entrypoints.iter_files_distros():
