@@ -78,3 +78,5 @@ def setup(app):
 
 
 nitpicky = True
+toctree_plus_types.add("tconf")
+toml_spec_version = "0.5.0"

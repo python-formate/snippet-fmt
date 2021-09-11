@@ -46,11 +46,14 @@ extra_sphinx_extensions:
  - sphinx_toolbox_experimental.autosummary_widths
 # - sphinx_toolbox_experimental.changelog
  - sphinx_toolbox_experimental.missing_xref
+ - sphinx_packaging
 
 sphinx_conf_epilogue:
 # - "\tfrom sphinx_toolbox.latex import replace_unknown_unicode"
 # - "\tapp.connect('build-finished', replace_unknown_unicode)"
  - nitpicky = True
+ - toctree_plus_types.add("tconf")
+ - toml_spec_version = "0.5.0"
 
 exclude_files:
  - contributing
