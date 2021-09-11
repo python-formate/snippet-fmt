@@ -164,6 +164,7 @@ def format_json(code: str, **config) -> str:
 	config = config.copy()
 
 	if config.pop("reformat", False):
+		config.setdefault("ensure_ascii", False)
 		return json.dumps(json_content, **config)
 	else:
 		return code
