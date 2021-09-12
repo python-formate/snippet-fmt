@@ -4,7 +4,7 @@ build-backend = "whey"
 
 [project]
 name = "snippet-fmt"
-version = "0.0.0"
+version = "0.1.0"
 description = "Format and validate code snippets in reStructuredText files."
 readme = "README.rst"
 keywords = [ "docs", "formatting", "linting",]
