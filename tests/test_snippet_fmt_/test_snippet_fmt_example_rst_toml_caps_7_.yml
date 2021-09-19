@@ -1,11 +1,11 @@
 err:
-- '.../example.rst:87: TomlDecodeError: Key name found without value. Reached end
+- '.../example.rst:93: TomlDecodeError: Key name found without value. Reached end
   of line. (line 10 column 2 char 86)'
 - ''
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -75,13 +75,11 @@'
+- '@@ -81,13 +81,11 @@'
 - ' .. code-block:: TOML'
 - ''
 - " \t[project]"

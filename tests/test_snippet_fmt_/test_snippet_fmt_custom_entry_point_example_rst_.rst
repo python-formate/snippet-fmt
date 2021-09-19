@@ -14,6 +14,11 @@
 	Hello World
 
 
+.. code-block:: python3
+
+	Hello World
+
+
 .. code-cell:: python3
 	:count: 1
 

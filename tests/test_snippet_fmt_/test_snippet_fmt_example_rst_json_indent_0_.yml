@@ -1,11 +1,11 @@
 err:
-- '.../example.rst:106: JSONDecodeError: Expecting property name enclosed in double
+- '.../example.rst:112: JSONDecodeError: Expecting property name enclosed in double
   quotes: line 4 column 1 (char 38)'
 - ''
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -112,7 +112,10 @@'
+- '@@ -118,7 +118,10 @@'
 - ''
 - ' .. code-block:: json'
 - ''

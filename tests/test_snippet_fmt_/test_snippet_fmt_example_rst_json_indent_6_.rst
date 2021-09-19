@@ -19,6 +19,12 @@
 				if item: print(item)
 
 
+.. code-block:: python3
+
+	for   item in [a,b,c]   :
+	    if item: print(item)
+
+
 .. code-cell:: python3
 	:count: 1
 

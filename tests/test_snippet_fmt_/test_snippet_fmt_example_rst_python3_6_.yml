@@ -3,7 +3,7 @@ err:
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -11,23 +11,21 @@'
+- '@@ -11,29 +11,28 @@'
 - ''
 - ' .. code-block:: python3'
 - ''
@@ -14,6 +14,15 @@ out:
 - '-'
 - "-\tfor   item in [a,b,c]   :"
 - "-\t\t\t\tif item: print(item)"
+- "+\tfor item in [a, b, c]:"
+- "+\t\tif item:"
+- "+\t\t\tprint(item)"
+- ''
+- ''
+- ' .. code-block:: python3'
+- ''
+- "-\tfor   item in [a,b,c]   :"
+- "-\t    if item: print(item)"
 - "+\tfor item in [a, b, c]:"
 - "+\t\tif item:"
 - "+\t\t\tprint(item)"

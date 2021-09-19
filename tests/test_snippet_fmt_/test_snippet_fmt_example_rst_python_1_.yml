@@ -3,7 +3,7 @@ err:
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -32,12 +32,11 @@'
+- '@@ -38,12 +38,11 @@'
 - ''
 - ' .. code:: python'
 - ''

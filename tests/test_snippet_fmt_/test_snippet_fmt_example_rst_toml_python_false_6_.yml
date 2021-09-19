@@ -1,11 +1,11 @@
 err:
-- '.../example.rst:100: TomlDecodeError: Unbalanced quotes (line 2 column 19 char
+- '.../example.rst:106: TomlDecodeError: Unbalanced quotes (line 2 column 19 char
   28)'
 - ''
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -63,13 +63,11 @@'
+- '@@ -69,13 +69,11 @@'
 - ' .. code-block:: toml'
 - ''
 - " \t[project]"

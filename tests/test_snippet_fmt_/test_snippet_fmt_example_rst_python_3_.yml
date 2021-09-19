@@ -3,7 +3,7 @@ err:
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -42,12 +42,11 @@'
+- '@@ -48,12 +48,11 @@'
 - ''
 - ' .. sourcecode:: python'
 - ''

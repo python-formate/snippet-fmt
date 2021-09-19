@@ -3,7 +3,7 @@ err:
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -75,13 +75,11 @@'
+- '@@ -81,13 +81,11 @@'
 - ' .. code-block:: TOML'
 - ''
 - " \t[project]"
