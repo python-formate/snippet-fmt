@@ -58,7 +58,6 @@ __email__: str = "dominic@davis-foster.co.uk"
 
 __all__ = ["CodeBlockError", "RSTReformatter", "reformat_file"]
 
-INDENT_RE = re.compile("^[ \t]+(?=[^ ])", re.MULTILINE)
 TRAILING_NL_RE = re.compile(r'\n+\Z', re.MULTILINE)
 
 
@@ -127,10 +126,10 @@ class RSTReformatter:
 				rf'(?P<before>'
 				rf'^(?P<indent>[ \t]*)\.\.[ \t]*('
 				rf'({directives})::\s*(?P<lang>[A-Za-z0-9-_]+)?)\n'
-				rf'((?P=indent)[ \t]+:.*\n)*'
+				rf'((?P=indent)[ \t]+:.*\n)*'  # Limitation: should be `(?P=body_indent)` rather than `[ \t]+`
 				rf'\n*'
 				rf')'
-				rf'(?P<code>(^((?P=indent)[ \t]+.*)?\n)+)',
+				rf'(?P<code>^((?P=indent)(?P<body_indent>[ \t]+).*)?\n(^((?P=indent)(?P=body_indent).*)?\n)+)',
 				re.MULTILINE,
 				)
 
@@ -159,7 +158,6 @@ class RSTReformatter:
 			lang_config = {}
 			formatter = noformat
 
-		min_indent = min(INDENT_RE.findall(match["code"]))
 		trailing_ws_match = TRAILING_NL_RE.search(match["code"])
 		assert trailing_ws_match
 		trailing_ws = trailing_ws_match.group()
@@ -169,7 +167,7 @@ class RSTReformatter:
 			with syntaxerror_for_file(self.filename):
 				code = formatter(code, **lang_config)
 
-		code = textwrap.indent(code, min_indent)
+		code = textwrap.indent(code, match["body_indent"])
 		return f'{match["before"]}{code.rstrip()}{trailing_ws}'
 
 	def get_diff(self) -> str:
