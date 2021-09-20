@@ -17,5 +17,16 @@ out:
 - ''
 - ''
 - ' .. code-block:: bash'
+- '@@ -135,7 +138,10 @@'
+- ''
+- " \t.. code-block:: json"
+- ''
+- "-\t\t{\"key\": \"value\", \"key2\": \"value2\"}"
+- "+\t\t{"
+- "+\t\t  \"key\": \"value\","
+- "+\t\t  \"key2\": \"value2\""
+- "+\t\t}"
+- ''
+- " \t.. code-block:: bash"
 - ''
 - ''

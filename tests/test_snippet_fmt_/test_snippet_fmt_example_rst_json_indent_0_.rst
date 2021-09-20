@@ -133,3 +133,17 @@
 
 	name: my-project
 	version: 1.2.3
+
+.. a-directive::
+
+	.. code-block:: json
+
+		{
+		  "key": "value",
+		  "key2": "value2"
+		}
+
+	.. code-block:: bash
+
+		$ conda config --add channels https://conda.anaconda.org/conda-forge
+		$ conda config --add channels https://conda.anaconda.org/domdfcoding

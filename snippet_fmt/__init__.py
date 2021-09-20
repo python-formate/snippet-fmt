@@ -167,7 +167,7 @@ class RSTReformatter:
 			with syntaxerror_for_file(self.filename):
 				code = formatter(code, **lang_config)
 
-		code = textwrap.indent(code, match["body_indent"])
+		code = textwrap.indent(code, match["indent"] + match["body_indent"])
 		return f'{match["before"]}{code.rstrip()}{trailing_ws}'
 
 	def get_diff(self) -> str:
