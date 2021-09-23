@@ -129,7 +129,7 @@ class RSTReformatter:
 				rf'((?P=indent)[ \t]+:.*\n)*'  # Limitation: should be `(?P=body_indent)` rather than `[ \t]+`
 				rf'\n*'
 				rf')'
-				rf'(?P<code>^((?P=indent)(?P<body_indent>[ \t]+).*)?\n(^((?P=indent)(?P=body_indent).*)?\n)+)',
+				rf'(?P<code>^((?P=indent)(?P<body_indent>[ \t]+).*)?\n(^((?P=indent)(?P=body_indent).*)?\n)*)',
 				re.MULTILINE,
 				)
 
