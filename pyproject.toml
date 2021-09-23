@@ -147,8 +147,7 @@ include = false
 order = 30
 include = false
 
-[tool.snippet-fmt.languages.toml]
-reformat = true
+[tool.snippet-fmt.languages.python3]
 
 [tool.snippet-fmt.languages.python]
 reformat = true
