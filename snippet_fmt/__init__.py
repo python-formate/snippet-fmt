@@ -53,7 +53,7 @@ from snippet_fmt.formatters import Formatter, format_ini, format_json, format_py
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"
 __license__: str = "MIT License"
-__version__: str = "0.1.3"
+__version__: str = "0.1.4"
 __email__: str = "dominic@davis-foster.co.uk"
 
 __all__ = ["CodeBlockError", "RSTReformatter", "reformat_file"]

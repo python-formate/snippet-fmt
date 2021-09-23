@@ -91,7 +91,7 @@ snippet-fmt
 .. |language| image:: https://img.shields.io/github/languages/top/python-formate/snippet-fmt
 	:alt: GitHub top language
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/python-formate/snippet-fmt/v0.1.3
+.. |commits-since| image:: https://img.shields.io/github/commits-since/python-formate/snippet-fmt/v0.1.4
 	:target: https://github.com/python-formate/snippet-fmt/pulse
 	:alt: GitHub commits since tagged version
 
