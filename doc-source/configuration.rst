@@ -177,7 +177,7 @@ Example
 .. code-block:: toml
 
 	[tool.snippet-fmt]
-	directives = ['code', 'code-block', 'sourcecode']
+	directives = [ "code", "code-block", "sourcecode",]
 
 	[tool.snippet-fmt.languages.python]
 	reformat = true
@@ -187,6 +187,7 @@ Example
 	reformat = true
 
 	[tool.snippet-fmt.languages.toml]
+
 	[tool.snippet-fmt.languages.ini]
 
 This will:
