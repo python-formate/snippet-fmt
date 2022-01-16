@@ -161,12 +161,12 @@ class RSTReformatter:
 					click.echo(f'    {tbe.text.strip()}', err=True)
 					if tbe.offset is not None:
 						caretspace = tbe.text.rstrip('\n')
-						print(repr(caretspace), tbe.offset)
+						# print(repr(caretspace), tbe.offset)
 						offset = min(len(caretspace), tbe.offset) - 1
-						print(offset)
+						# print(offset)
 						caretspace = caretspace[:offset].lstrip()
 						# non-space whitespace (likes tabs) must be kept for alignment
-						print(repr(caretspace))
+						# print(repr(caretspace))
 						click.echo(f"    {''.join(((c.isspace() and c or ' ') for c in caretspace))}^", err=True)
 
 		if self._reformatted_source != self._unformatted_source:
