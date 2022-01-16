@@ -107,7 +107,7 @@ def format_python(code: str, **config) -> str:
 		r.run()
 		return r.to_string()
 	else:
-		ast.parse(code)
+		ast.parse(code, filename="snippet.py")
 		return code
 
 

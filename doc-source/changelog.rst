@@ -2,6 +2,14 @@
 Changelog
 ===============
 
+v0.2.0
+----------
+
+* CLI -- Now exits with code ``4`` if syntax errors are encountered when checking code blocks.
+* :meth:`RSTReformatter.run <snippet_fmt.RSTReformatter.run>` -- Now returns ``4`` if an error occurred, and ``1`` if the file was changed.
+
+.. note:: A Return code of ``5`` indicates a combination of a syntax error and the file being reformatted.
+
 v0.1.4
 ----------
 

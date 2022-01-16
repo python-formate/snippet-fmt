@@ -113,7 +113,7 @@ def main(
 		with handle_tracebacks(show_traceback, cls=SyntaxTracebackHandler):
 			ret_for_file = r.run()
 
-		if ret_for_file:
+		if ret_for_file & 1 == 1:
 			if verbose:
 				click.echo(f"Reformatting {path}")
 			if show_diff:

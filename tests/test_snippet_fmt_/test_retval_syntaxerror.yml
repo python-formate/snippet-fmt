@@ -1,0 +1,26 @@
+error:
+  err:
+  - '.../demo.rst:1: SyntaxError: invalid syntax (snippet.py, line 1)'
+  - '    def for while if'
+  - '        ^'
+  - ''
+  out:
+  - ''
+reformat:
+  err:
+  - '.../demo.rst:1: SyntaxError: invalid syntax (snippet.py, line 1)'
+  - '    def for while if'
+  - '        ^'
+  - ''
+  out:
+  - "--- .../demo.rst\t(original)"
+  - "+++ .../demo.rst\t(reformatted)"
+  - '@@ -4,6 +4,5 @@'
+  - ''
+  - ' .. code-block:: python3'
+  - ''
+  - "-\tprint    (\t\"hello world\""
+  - "-\t)"
+  - "+\tprint(\"hello world\")"
+  - ''
+  - ''

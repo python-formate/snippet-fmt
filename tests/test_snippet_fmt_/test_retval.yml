@@ -1,0 +1,16 @@
+err:
+- ''
+out:
+- "--- .../demo.rst\t(original)"
+- "+++ .../demo.rst\t(reformatted)"
+- '@@ -1,7 +1,6 @@'
+- ' .. code-block:: python'
+- ''
+- "-\tprint    (\t\"hello world\""
+- "-\t)"
+- "+\tprint(\"hello world\")"
+- ''
+- ''
+- ' .. code-block:: python3'
+- ''
+- ''

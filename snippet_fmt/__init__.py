@@ -34,6 +34,7 @@ Format and validate code snippets in reStructuredText files.
 import contextlib
 import re
 import textwrap
+import traceback
 from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 
 # 3rd party
@@ -110,11 +111,17 @@ class RSTReformatter:
 				}
 		self.load_extra_formatters()
 
-	def run(self) -> bool:
+	def run(self) -> int:
 		"""
 		Run the reformatter.
 
-		:return: Whether the file was changed.
+		:return: Whether the file was changed or any errors occurred.
+
+		.. versionchanged:: 0.2.0
+
+			Now returns ``4`` if an error occurred, and integers instead of booleans for other results.
+
+		.. note:: A Return code of ``5`` indicates a combination of a syntax error and the file being reformatted.
 		"""
 
 		content = StringList(self._unformatted_source)
@@ -135,11 +142,37 @@ class RSTReformatter:
 
 		self._reformatted_source = pattern.sub(self.process_match, str(content))
 
+		ret = 0
+
 		for error in self.errors:
+			ret |= 4
+
 			lineno = self._unformatted_source[:error.offset].count('\n') + 1
 			click.echo(f"{self.filename}:{lineno}: {error.exc.__class__.__name__}: {error.exc}", err=True)
 
-		return self._reformatted_source != self._unformatted_source
+			if isinstance(error.exc, SyntaxError):
+				tbe = traceback.TracebackException(
+						error.exc.__class__,
+						error.exc,
+						None,  # type: ignore[arg-type]
+						)
+
+				if tbe.text is not None:
+					click.echo(f'    {tbe.text.strip()}', err=True)
+					if tbe.offset is not None:
+						caretspace = tbe.text.rstrip('\n')
+						print(repr(caretspace), tbe.offset)
+						offset = min(len(caretspace), tbe.offset) - 1
+						print(offset)
+						caretspace = caretspace[:offset].lstrip()
+						# non-space whitespace (likes tabs) must be kept for alignment
+						print(repr(caretspace))
+						click.echo(f"    {''.join(((c.isspace() and c or ' ') for c in caretspace))}^", err=True)
+
+		if self._reformatted_source != self._unformatted_source:
+			ret |= 1
+
+		return ret
 
 	def process_match(self, match: Match[str]) -> str:
 		"""
@@ -164,7 +197,7 @@ class RSTReformatter:
 		code = textwrap.dedent(match["code"])
 
 		with self._collect_error(match):
-			with syntaxerror_for_file(self.filename):
+			with syntaxerror_for_file("snippet.py"):
 				code = formatter(code, **lang_config)
 
 		code = textwrap.indent(code, match["indent"] + match["body_indent"])
@@ -247,7 +280,7 @@ def reformat_file(
 
 	ret = r.run()
 
-	if ret:
+	if ret & 1 == 1:
 		click.echo(r.get_diff(), color=resolve_color_default(colour))
 		r.to_file()
 
