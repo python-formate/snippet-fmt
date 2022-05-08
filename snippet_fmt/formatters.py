@@ -137,6 +137,8 @@ def format_ini(code: str, **config) -> str:
 	:param \*\*config: The language-specific configuration.
 
 	:returns: The original code unchanged.
+
+	.. latex:clearpage::
 	"""
 
 	parser = ConfigParser()

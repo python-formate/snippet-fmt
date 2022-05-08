@@ -80,3 +80,10 @@ def setup(app):
 nitpicky = True
 toctree_plus_types.add("tconf")
 toml_spec_version = "0.5.0"
+needspace_amount = r"5\baselineskip"
+favicons = [{
+		"rel": "icon",
+		"href": "https://python-formate.github.io/assets/formate.ico",
+		"sizes": "48x48",
+		"type": "image/vnd.microsoft.icon"
+		}]
