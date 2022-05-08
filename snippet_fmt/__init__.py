@@ -79,7 +79,7 @@ class RSTReformatter:
 
 	:param filename: The filename to reformat.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
-	
+
 	.. autosummary-widths:: 35/100
 	.. latex:clearpage::
 	"""
