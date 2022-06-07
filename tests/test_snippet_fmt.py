@@ -1,6 +1,5 @@
 # stdlib
-import re
-from typing import Dict, List, Union, no_type_check
+from typing import Dict, Iterator, List, Union, no_type_check
 
 # 3rd party
 import dom_toml
@@ -69,7 +68,7 @@ filenames = pytest.mark.parametrize("filename", [param("example.rst", idx=0)])
 
 
 @pytest.fixture()
-def custom_entry_point(monkeypatch):
+def custom_entry_point(monkeypatch) -> Iterator:
 	with TemporaryPathPlus() as tmpdir:
 		monkeypatch.syspath_prepend(str(tmpdir))
 
@@ -114,6 +113,7 @@ class TestReformatFile:
 		advanced_file_regression.check_file(tmp_pathplus / filename)
 		check_out(capsys.readouterr(), tmp_pathplus, advanced_data_regression)
 
+	@pytest.mark.usefixtures("custom_entry_point")
 	@filenames
 	def test_snippet_fmt_custom_entry_point(
 			self,
@@ -122,7 +122,6 @@ class TestReformatFile:
 			advanced_file_regression: AdvancedFileRegressionFixture,
 			advanced_data_regression: AdvancedDataRegressionFixture,
 			capsys,
-			custom_entry_point
 			):
 
 		languages = {"python3": {"reformat": True}}
@@ -191,7 +190,7 @@ def check_out(
 		result: Union[Result, CaptureResult[str]],
 		tmpdir: PathPlus,
 		advanced_data_regression: AdvancedDataRegressionFixture,
-		):
+		) -> None:
 
 	if hasattr(result, "stdout"):
 		stdout = result.stdout

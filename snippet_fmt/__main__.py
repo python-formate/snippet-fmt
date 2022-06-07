@@ -38,7 +38,7 @@ from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.tracebacks import handle_tracebacks, traceback_option
 from domdf_python_tools.typing import PathLike
 
-__all__ = ["main"]
+__all__ = ("main", )
 
 
 @flag_option("--diff", "show_diff", help="Show a diff of changes made")
@@ -71,7 +71,7 @@ def main(
 		verbose: bool = False,
 		show_traceback: bool = False,
 		show_diff: bool = False,
-		):
+		) -> None:
 	"""
 	Reformat code snippets in the given reStructuredText files.
 	"""
@@ -97,7 +97,7 @@ def main(
 
 	for path in filename:
 		for pattern in exclude or []:
-			if re.match(fnmatch.translate(pattern), str(path)):
+			if re.match(fnmatch.translate(pattern), str(path)):  # pylint: disable=loop-invariant-statement
 				continue
 
 		path = PathPlus(path).abspath()

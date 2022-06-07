@@ -56,7 +56,7 @@ __license__: str = "MIT License"
 __version__: str = "0.1.4"
 __email__: str = "dominic@davis-foster.co.uk"
 
-__all__ = ["CodeBlockError", "RSTReformatter", "reformat_file"]
+__all__ = ("CodeBlockError", "RSTReformatter", "reformat_file")
 
 TRAILING_NL_RE = re.compile(r'\n+\Z', re.MULTILINE)
 
@@ -227,7 +227,7 @@ class RSTReformatter:
 		for distro_config, _ in entrypoints.iter_files_distros():
 			if group in distro_config:
 				for name, epstr in distro_config[group].items():
-					with contextlib.suppress(entrypoints.BadEntryPoint, ImportError):
+					with contextlib.suppress(entrypoints.BadEntryPoint, ImportError):  # pylint: disable=W8205
 						# TODO: show warning for bad entry point if verbose, or "strict"?
 						ep = entrypoints.EntryPoint.from_string(epstr, name)
 						self._formatters[name] = ep.load()
@@ -237,7 +237,7 @@ def reformat_file(
 		filename: PathLike,
 		config: SnippetFmtConfigDict,
 		colour: ColourTrilean = None,
-		):
+		) -> int:
 	"""
 	Reformat the given reStructuredText file, and show the diff if changes were made.
 

@@ -34,7 +34,7 @@ import dom_toml
 from domdf_python_tools.typing import PathLike
 from typing_extensions import TypedDict
 
-__all__ = ["SnippetFmtConfigDict", "load_toml"]
+__all__ = ("SnippetFmtConfigDict", "load_toml")
 
 
 class SnippetFmtConfigDict(TypedDict):
@@ -98,7 +98,7 @@ def load_toml(filename: PathLike) -> SnippetFmtConfigDict:
 
 	if "languages" in config:
 		for language, lang_config in config.get("languages", {}).items():
-			snippet_fmt_config["languages"][language] = lang_config
+			snippet_fmt_config["languages"][language] = lang_config  # pylint: disable=loop-invariant-statement
 	else:
 		snippet_fmt_config["languages"] = {
 				"python": {},

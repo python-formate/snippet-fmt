@@ -32,7 +32,7 @@ import json
 import os
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Optional
 
 # 3rd party
 import dom_toml
@@ -40,14 +40,14 @@ import dom_toml.decoder
 import formate
 from domdf_python_tools.paths import PathPlus
 
-__all__ = [
+__all__ = (
 		"Formatter",
 		"format_toml",
 		"format_ini",
 		"format_json",
 		"format_python",
 		"noformat",
-		]
+		)
 
 # 3rd party
 from typing_extensions import Protocol
