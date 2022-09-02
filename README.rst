@@ -56,8 +56,8 @@ snippet-fmt
 	:target: https://github.com/python-formate/snippet-fmt/actions?query=workflow%3A%22mypy%22
 	:alt: mypy status
 
-.. |requires| image:: https://dependency-dash.herokuapp.com/github/python-formate/snippet-fmt/badge.svg
-	:target: https://dependency-dash.herokuapp.com/github/python-formate/snippet-fmt/
+.. |requires| image:: https://dependency-dash.repo-helper.uk/github/python-formate/snippet-fmt/badge.svg
+	:target: https://dependency-dash.repo-helper.uk/github/python-formate/snippet-fmt/
 	:alt: Requirements Status
 
 .. |coveralls| image:: https://img.shields.io/coveralls/github/python-formate/snippet-fmt/master?logo=coveralls
