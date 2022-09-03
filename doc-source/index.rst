@@ -58,8 +58,8 @@ snippet-fmt
 		:workflow: mypy
 		:alt: mypy status
 
-	.. |requires| image:: https://dependency-dash.herokuapp.com/github/python-formate/snippet-fmt/badge.svg
-		:target: https://dependency-dash.herokuapp.com/github/python-formate/snippet-fmt/
+	.. |requires| image:: https://dependency-dash.repo-helper.uk/github/python-formate/snippet-fmt/badge.svg
+		:target: https://dependency-dash.repo-helper.uk/github/python-formate/snippet-fmt/
 		:alt: Requirements Status
 
 	.. |coveralls| coveralls-shield::
