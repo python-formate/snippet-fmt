@@ -73,7 +73,7 @@ extensions = [
     "sphinx_click",
     "sphinx_toolbox.pre_commit",
     "sphinx_toolbox.more_autosummary.column_widths",
-    "sphinx-favicon",
+    "sphinx_favicon",
     "sphinx_toolbox_experimental.missing_xref",
     "sphinx_packaging",
 ]
