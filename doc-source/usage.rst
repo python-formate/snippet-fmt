@@ -22,7 +22,7 @@ To do so, add the following to your
 `.pre-commit-config.yaml <https://pre-commit.com/#2-add-a-pre-commit-configuration>`_ file:
 
 .. pre-commit::
-	:rev: 0.1.4
+	:rev: 0.1.5
 	:hooks: snippet-fmt
 	:args: --verbose
 
