@@ -38,7 +38,7 @@ from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 
 # 3rd party
 import click
-import entrypoints  # type: ignore
+import entrypoints  # type: ignore[import]
 from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.utils import coloured_diff
 from domdf_python_tools.paths import PathPlus
@@ -71,6 +71,9 @@ class CodeBlockError(NamedTuple):
 
 	#: The exception itself.
 	exc: Exception
+
+
+# TODO: reformatter for docstrings
 
 
 class RSTReformatter:
