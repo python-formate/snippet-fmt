@@ -1,0 +1,32 @@
+err:
+- '.../example.rst:112: JSONDecodeError: Illegal trailing comma before end of object:
+  line 3 column 18 (char 36)'
+- ''
+out:
+- "--- .../example.rst\t(original)"
+- "+++ .../example.rst\t(reformatted)"
+- '@@ -118,7 +118,10 @@'
+- ''
+- ' .. code-block:: json'
+- ''
+- "-\t{\"key\": \"value\", \"key2\": \"value2\"}"
+- "+\t{"
+- "+\t  \"key\": \"value\","
+- "+\t  \"key2\": \"value2\""
+- "+\t}"
+- ''
+- ''
+- ' .. code-block:: bash'
+- '@@ -135,7 +138,10 @@'
+- ''
+- " \t.. code-block:: json"
+- ''
+- "-\t\t{\"key\": \"value\", \"key2\": \"value2\"}"
+- "+\t\t{"
+- "+\t\t  \"key\": \"value\","
+- "+\t\t  \"key2\": \"value2\""
+- "+\t\t}"
+- ''
+- " \t.. code-block:: bash"
+- ''
+- ''

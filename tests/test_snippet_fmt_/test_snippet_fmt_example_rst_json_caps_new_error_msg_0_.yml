@@ -1,0 +1,6 @@
+err:
+- '.../example.rst:112: JSONDecodeError: Illegal trailing comma before end of object:
+  line 3 column 18 (char 36)'
+- ''
+out:
+- ''

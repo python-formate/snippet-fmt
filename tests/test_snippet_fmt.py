@@ -7,6 +7,7 @@ import pytest
 from _pytest.capture import CaptureResult
 from coincidence import AdvancedDataRegressionFixture, AdvancedFileRegressionFixture
 from coincidence.params import param
+from coincidence.selectors import max_version, min_version
 from consolekit.terminal_colours import strip_ansi
 from consolekit.testing import CliRunner, Result
 from domdf_python_tools.paths import PathPlus, TemporaryPathPlus, in_directory
@@ -52,15 +53,33 @@ languages = pytest.mark.parametrize(
 						{"ini": {"reformat": True}, "python": {"reformat": False}},
 						id="ini_python_false",
 						),
-				pytest.param({"JSON": {"reformat": True}}, id="json_caps"),
-				pytest.param({"json": {"reformat": True}}, id="json"),
+				pytest.param({"JSON": {"reformat": True}}, id="json_caps", marks=max_version("3.12")),
+				pytest.param(
+						{"JSON": {"reformat": True}},
+						id="json_caps_new_error_msg",
+						marks=min_version("3.13"),
+						),
+				pytest.param({"json": {"reformat": True}}, id="json", marks=max_version("3.12")),
+				pytest.param({"json": {"reformat": True}}, id="json_new_error_msg", marks=min_version("3.13")),
 				pytest.param(
 						{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
 						id="json_caps_indent",
+						marks=max_version("3.12"),
+						),
+				pytest.param(
+						{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
+						id="json_caps_indent_new_error_msg",
+						marks=min_version("3.13"),
 						),
 				pytest.param(
 						{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
 						id="json_indent",
+						marks=max_version("3.12"),
+						),
+				pytest.param(
+						{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
+						id="json_indent_new_error_msg",
+						marks=min_version("3.13"),
 						),
 				]
 		)
