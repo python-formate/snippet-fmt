@@ -48,4 +48,4 @@ known_third_party = [
     "pytest_timeout",
     "typing_extensions",
 ]
-known_first_party = "snippet_fmt"
+known_first_party = [ "snippet_fmt",]
