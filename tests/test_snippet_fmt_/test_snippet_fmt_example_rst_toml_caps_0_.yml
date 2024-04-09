@@ -3,21 +3,20 @@ err:
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -81,13 +81,11 @@'
+- '@@ -81,13 +81,9 @@'
 - ' .. code-block:: TOML'
 - ''
 - " \t[project]"
-- "+\tname = \"my-project\""
-- "+\tversion = \"1.2.3\""
-- ''
+- '-'
 - '-'
 - "-\tname   =   'my-project'"
 - '-'
 - '-'
 - "-\tversion=\"1.2.3\""
 - "-\tlicense = {file = \"LICENSE\"}"
-- "+\t[project.license]"
-- "+\tfile = \"LICENSE\""
+- "+\tname = \"my-project\""
+- "+\tversion = \"1.2.3\""
+- "+\tlicense = { file = \"LICENSE\" }"
 - ''
 - ''
 - ' .. code:: TOML'

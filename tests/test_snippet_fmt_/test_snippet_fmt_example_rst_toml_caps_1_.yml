@@ -1,6 +1,6 @@
 err:
-- '.../example.rst:93: TomlDecodeError: Key name found without value. Reached end
-  of line. (line 10 column 2 char 86)'
+- '.../example.rst:93: TOMLDecodeError: Invalid initial character for a key part (at
+  line 8, column 12)'
 - ''
 out:
 - ''

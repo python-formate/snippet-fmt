@@ -1,6 +1,5 @@
 err:
-- '.../example.rst:106: TomlDecodeError: Unbalanced quotes (line 2 column 19 char
-  28)'
+- '.../example.rst:106: TOMLDecodeError: Expected "''" (at end of document)'
 - ''
 out:
 - "--- .../example.rst\t(original)"

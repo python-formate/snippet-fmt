@@ -83,9 +83,7 @@
 	[project]
 	name = "my-project"
 	version = "1.2.3"
-
-	[project.license]
-	file = "LICENSE"
+	license = { file = "LICENSE" }
 
 
 .. code:: TOML

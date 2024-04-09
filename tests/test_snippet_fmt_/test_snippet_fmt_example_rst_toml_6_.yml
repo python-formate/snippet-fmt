@@ -1,25 +1,23 @@
 err:
-- '.../example.rst:106: TomlDecodeError: Unbalanced quotes (line 2 column 19 char
-  28)'
+- '.../example.rst:106: TOMLDecodeError: Expected "''" (at end of document)'
 - ''
 out:
 - "--- .../example.rst\t(original)"
 - "+++ .../example.rst\t(reformatted)"
-- '@@ -69,13 +69,11 @@'
+- '@@ -69,13 +69,9 @@'
 - ' .. code-block:: toml'
 - ''
 - " \t[project]"
-- "+\tname = \"my-project\""
-- "+\tversion = \"1.2.3\""
-- ''
+- '-'
 - '-'
 - "-\tname   =   'my-project'"
 - '-'
 - '-'
 - "-\tversion=\"1.2.3\""
 - "-\tlicense = {file = \"LICENSE\"}"
-- "+\t[project.license]"
-- "+\tfile = \"LICENSE\""
+- "+\tname = \"my-project\""
+- "+\tversion = \"1.2.3\""
+- "+\tlicense = { file = \"LICENSE\" }"
 - ''
 - ''
 - ' .. code-block:: TOML'
