@@ -17,14 +17,13 @@ sphinx_html_theme: furo
 docs_fail_on_warning: true
 
 python_versions:
- - '3.6'
  - '3.7'
  - '3.8'
  - '3.9'
  - "3.10"
  - "3.11"
  - "3.12"
- - 3.13-dev
+ - "3.13"
 
 keywords:
  - formatting
