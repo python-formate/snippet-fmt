@@ -98,7 +98,8 @@ config-file = "pyproject.toml"
 				pytest.param("[snippet_fmt]\ndirectives = ['jupyter-execute']", id="directives_c_underscore"),
 				pytest.param("[snippet_fmt]\ndirectives = ['code-cell']", id="directives_d_underscore"),
 				pytest.param(
-						"[snippet_fmt]\ndirectives = ['code-cell', 'sourcecode']", id="directives_e_underscore"
+						"[snippet_fmt]\ndirectives = ['code-cell', 'sourcecode']",
+						id="directives_e_underscore",
 						),
 				pytest.param(TABLE_LANGUAGES_A, id="languages_a"),
 				pytest.param("[tool.snippet-fmt]", id="pyproject_empty_table"),
@@ -106,26 +107,30 @@ config-file = "pyproject.toml"
 				pytest.param("[tool.snippet-fmt]\ndirectives = ['code']", id="pyproject_directives_b"),
 				pytest.param("[tool.snippet-fmt]\ndirectives = ['jupyter-execute']", id="pyproject_directives_c"),
 				pytest.param("[tool.snippet-fmt]\ndirectives = ['code-cell']", id="pyproject_directives_d"),
-				pytest.
-				param("[tool.snippet-fmt]\ndirectives = ['code-cell', 'sourcecode']", id="pyproject_directives_e"),
+				pytest.param(
+						"[tool.snippet-fmt]\ndirectives = ['code-cell', 'sourcecode']",
+						id="pyproject_directives_e",
+						),
 				pytest.param("[tool.snippet-fmt]", id="pyproject_underscore_empty_table"),
 				pytest.param(
-						"[tool.snippet_fmt]\ndirectives = ['code-block']", id="pyproject_underscore_directives_a"
+						"[tool.snippet_fmt]\ndirectives = ['code-block']",
+						id="pyproject_underscore_directives_a",
 						),
 				pytest.param("[tool.snippet_fmt]\ndirectives = ['code']", id="pyproject_underscore_directives_b"),
 				pytest.param(
 						"[tool.snippet_fmt]\ndirectives = ['jupyter-execute']",
-						id="pyproject_underscore_directives_c"
+						id="pyproject_underscore_directives_c",
 						),
 				pytest.param(
-						"[tool.snippet_fmt]\ndirectives = ['code-cell']", id="pyproject_underscore_directives_d"
+						"[tool.snippet_fmt]\ndirectives = ['code-cell']",
+						id="pyproject_underscore_directives_d",
 						),
 				pytest.param(
 						"[tool.snippet_fmt]\ndirectives = ['code-cell', 'sourcecode']",
-						id="pyproject_underscore_directives_e"
+						id="pyproject_underscore_directives_e",
 						),
 				pytest.param(PYPROJECT_LANGUAGES_A, id="pyproject_languages_a"),
-				]
+				],
 		)
 def test_load_toml(
 		config: str,

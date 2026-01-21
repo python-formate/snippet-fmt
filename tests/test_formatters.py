@@ -14,7 +14,7 @@ from snippet_fmt import format_ini, format_json, format_python, format_toml, nof
 				pytest.param("[project]\nname = 'foo'", id="TOML"),
 				pytest.param("[project]\nname: foo", id="INI"),
 				pytest.param('{"project": {"name": "foo"}}', id="JSON"),
-				]
+				],
 		)
 def test_noformat(code: str):
 	assert noformat(code) == code
@@ -59,7 +59,7 @@ def test_reformat_python(
 				('["hello", "world"]', '["hello", "world"]'),
 				('  [  "hello"  , \n\n\n"world" ]\n\n\n\n', '["hello", "world"]'),
 				('{"hello": "world"}', '{"hello": "world"}'),
-				]
+				],
 		)
 def test_format_json(code: str, expected: str):
 	assert format_json(code) == code
@@ -73,7 +73,7 @@ def test_format_json(code: str, expected: str):
 				('["hello", "world"]', '[\n  "hello",\n  "world"\n]'),
 				('  [  "hello"  , \n\n\n"world" ]\n\n\n\n', '[\n  "hello",\n  "world"\n]'),
 				('{"hello": "world"}', '{\n  "hello": "world"\n}'),
-				]
+				],
 		)
 def test_format_json_options(code: str, expected: str):
 	assert format_json(code, indent=2) == code
@@ -86,7 +86,7 @@ def test_format_json_options(code: str, expected: str):
 		[
 				('[project]\nhello = "world"', '[project]\nhello = "world"\n'),
 				('  [project]\n\n  \thello   =    "world"', '[project]\nhello = "world"\n'),
-				]
+				],
 		)
 def test_format_toml(code: str, expected: str):
 	assert format_toml(code) == code
@@ -99,7 +99,7 @@ def test_format_toml(code: str, expected: str):
 		[
 				('[project]\nhello: world', '[project]\nhello = world\n\n'),
 				('  [project]\n\n  \thello   =    world', '[project]\nhello = world\n\n'),
-				]
+				],
 		)
 def test_format_ini(code: str, expected: str):
 	assert format_ini(code) == code

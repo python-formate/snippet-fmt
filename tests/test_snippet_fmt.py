@@ -29,7 +29,7 @@ directives = pytest.mark.parametrize(
 				pytest.param(["code-block", "code", "code-cell"], id='5'),
 				pytest.param(["code-block", "code", "code-cell", "sourcecode"], id='6'),
 				pytest.param(["code-block", "code", "parsed-literal"], id='7'),
-				]
+				],
 		)
 languages = pytest.mark.parametrize(
 		"languages",
@@ -81,7 +81,7 @@ languages = pytest.mark.parametrize(
 						id="json_indent_new_error_msg",
 						marks=min_version("3.13"),
 						),
-				]
+				],
 		)
 filenames = pytest.mark.parametrize("filename", [param("example.rst", idx=0)])
 
