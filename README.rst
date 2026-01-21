@@ -99,11 +99,11 @@ snippet-fmt
 	:target: https://github.com/python-formate/snippet-fmt/commit/master
 	:alt: GitHub last commit
 
-.. |maintained| image:: https://img.shields.io/maintenance/yes/2025
+.. |maintained| image:: https://img.shields.io/maintenance/yes/2026
 	:alt: Maintenance
 
 .. |pypi-downloads| image:: https://img.shields.io/pypi/dm/snippet-fmt
-	:target: https://pypi.org/project/snippet-fmt/
+	:target: https://pypistats.org/packages/snippet-fmt
 	:alt: PyPI - Downloads
 
 .. end shields
