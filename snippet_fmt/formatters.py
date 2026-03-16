@@ -79,6 +79,7 @@ class StringReformatter(formate.Reformatter):
 	def __init__(self, code: str, config: formate.FormateConfigDict):
 		self.file_to_format = PathPlus(os.devnull)  # in case someone tries to write to the file
 		self.filename = "snippet.py"
+		self.filetype = ".py"
 		self.config = config
 		self._unformatted_source = code
 		self._reformatted_source: Optional[str] = None
