@@ -4,4 +4,5 @@ dom-toml>=2.0.0
 domdf-python-tools>=3.0.0
 entrypoints>=0.3
 formate>=1.2.1
+tokenize-rt>=5.0.0
 typing-extensions>=3.10.0.0

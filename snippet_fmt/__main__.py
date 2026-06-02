@@ -102,7 +102,7 @@ def main(
 
 		path = PathPlus(path).abspath()
 
-		if path.suffix != ".rst" or path.is_dir():
+		if path.suffix not in {".rst", ".py"} or path.is_dir():
 			if verbose >= 2:
 				click.echo(f"Skipping {path} as it doesn't appear to be a reStructuredText file")
 

@@ -76,19 +76,17 @@ class CodeBlockError(NamedTuple):
 # TODO: reformatter for docstrings
 
 
-class RSTReformatter:
+class Reformatter:
 	"""
-	Reformat code snippets in a reStructuredText file.
+	Base class for reformatters.
 
-	:param filename: The filename to reformat.
+	:param source: The file content.
+	:param filename: The file being formatted, for display in error messages.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
 
 	.. autosummary-widths:: 35/100
 	.. latex:clearpage::
 	"""
-
-	#: The filename being reformatted.
-	filename: str
 
 	#: The filename being reformatted, as a POSIX-style path.
 	file_to_format: PathPlus
@@ -98,11 +96,10 @@ class RSTReformatter:
 
 	errors: List[CodeBlockError]
 
-	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
-		self.file_to_format = PathPlus(filename)
-		self.filename = self.file_to_format.as_posix()
+	def __init__(self, source: str, filename: str, config: SnippetFmtConfigDict):
+		self.filename = filename
 		self.config = config
-		self._unformatted_source = self.file_to_format.read_text()
+		self._unformatted_source = source
 		self._reformatted_source: Optional[str] = None
 		self.errors = []
 
@@ -142,10 +139,19 @@ class RSTReformatter:
 		self._reformatted_source = pattern.sub(self.process_match, str(content))
 
 		for error in self.errors:
-			lineno = self._unformatted_source[:error.offset].count('\n') + 1
-			click.echo(f"{self.filename}:{lineno}: {error.exc.__class__.__name__}: {error.exc}", err=True)
+			self.report_error(error)
 
-		return self._reformatted_source != self._unformatted_source
+		return self._reformatted_source != self._unformatted_source or bool(self.errors)
+
+	def report_error(self, error: CodeBlockError):
+		"""
+		Print the error message.
+
+		:param error:
+		"""
+
+		lineno = self._unformatted_source[:error.offset].count('\n') + 1
+		click.echo(f"{self.filename}:{lineno}: {error.exc.__class__.__name__}: {error.exc}", err=True)
 
 	def process_match(self, match: Match[str]) -> str:
 		"""
@@ -206,13 +212,6 @@ class RSTReformatter:
 
 		return self._reformatted_source
 
-	def to_file(self) -> None:
-		"""
-		Write the reformatted source to the original file.
-		"""
-
-		self.file_to_format.write_text(self.to_string())
-
 	@contextlib.contextmanager
 	def _collect_error(self, match: Match[str]) -> Iterator[None]:
 		try:
@@ -235,6 +234,31 @@ class RSTReformatter:
 						ep = entrypoints.EntryPoint.from_string(epstr, name)
 						self._formatters[name] = ep.load()
 
+
+class RSTReformatter(Reformatter):
+	"""
+	Reformat code snippets in a reStructuredText file.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	#: The filename being reformatted.
+	filename: str
+
+	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
+		self.file_to_format = PathPlus(filename)
+		super().__init__(self.file_to_format.as_posix(), self.file_to_format.read_text(), config)
+
+	def to_file(self) -> None:
+		"""
+		Write the reformatted source to the original file.
+		"""
+
+		self.file_to_format.write_text(self.to_string())
 
 def reformat_file(
 		filename: PathLike,
