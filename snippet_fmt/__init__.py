@@ -144,7 +144,7 @@ class Reformatter:
 		for error in self.errors:
 			self.report_error(error)
 
-		return self._reformatted_source != self._unformatted_source or bool(self.errors)
+		return self._reformatted_source != self._unformatted_source
 
 	def report_error(self, error: CodeBlockError) -> None:
 		"""
@@ -254,7 +254,7 @@ class RSTReformatter(Reformatter):
 
 	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
 		self.file_to_format = PathPlus(filename)
-		super().__init__(self.file_to_format.as_posix(), self.file_to_format.read_text(), config)
+		super().__init__(self.file_to_format.read_text(), self.file_to_format.as_posix(), config)
 
 	def to_file(self) -> None:
 		"""
