@@ -62,6 +62,7 @@ __email__: str = "dominic@davis-foster.co.uk"
 __all__ = (
 		"CodeBlockError",
 		"DocstringReformatter",
+		"PyReformatter",
 		"RSTReformatter",
 		"Reformatter",
 		"reformat_docstrings",
@@ -123,7 +124,7 @@ class Reformatter:
 				}
 		self.load_extra_formatters()
 
-	def compile_regex(self):
+	def compile_regex(self) -> re.Pattern:
 		"""
 		Compile the regular expression for finding directives.
 		"""
@@ -348,17 +349,21 @@ class DocstringReformatter(Reformatter):
 				self.prefix_char,
 				self.quote_char,
 				textwrap.indent(self._reformatted_source, self.indent).rstrip(),
-		]
+				]
 
 		if len(self.quote_char) == 3:
 			parts.append('\n')
 			parts.append(self.indent)
-		
+
 		parts.append(self.quote_char)
 
 		return ''.join(parts)
 
 	def to_token(self) -> tokenize_rt.Token:
+		"""
+		Return the docstring as a token for ``tokenize_rt``.
+		"""
+
 		return tokenize_rt.Token(
 				name="STRING",
 				src=self.to_string(),
@@ -385,6 +390,50 @@ class DocstringReformatter(Reformatter):
 			self.report_error(error)
 
 		return self._reformatted_source != self._unformatted_source
+
+
+class PyReformatter(RSTReformatter):
+	"""
+	Reformat code snippets in docstrings in a Python file.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		original_tokens = snippet_fmt.docstring.get_tokens(self._unformatted_source)
+		tokens: List[tokenize_rt.Token] = []
+
+		file_ret = 0
+
+		for token in original_tokens:
+
+			if token.name == "DOCSTRING":
+				r = DocstringReformatter(token, self.file_to_format, self.config)
+
+				with syntaxerror_for_file(self.filename):
+					if r.run():
+						token = r.to_token()
+						file_ret = True
+
+			tokens.append(token)
+
+		self._reformatted_source = tokenize_rt.tokens_to_src(tokens)
+		if file_ret:
+			assert tokenize_rt.tokens_to_src(tokens) != self._unformatted_source
+			return True
+		else:
+			assert tokenize_rt.tokens_to_src(tokens) == self._unformatted_source
+			return False
 
 
 def reformat_file(
@@ -437,12 +486,11 @@ def reformat_docstrings(
 		if token.name == "DOCSTRING":
 			r = DocstringReformatter(token, file, config)
 
-			ret = r.run()
-
-			if ret:
-				token = r.to_token()
-				click.echo(r.get_diff(), color=resolve_color_default(colour))
-				file_ret = True
+			with syntaxerror_for_file(file.name):
+				if r.run():
+					token = r.to_token()
+					click.echo(r.get_diff(), color=resolve_color_default(colour))
+					file_ret = True
 
 		tokens.append(token)
 

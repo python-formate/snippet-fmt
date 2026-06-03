@@ -363,6 +363,67 @@ class TestCLI:
 		# mtime should be the same
 		assert (tmp_pathplus_clean / filename).stat().st_mtime == st.st_mtime
 
+	@directives
+	@languages
+	@filenames
+	@pytest.mark.parametrize(
+			"quotes",
+			[
+					param("'''", id="single"),
+					param('"""', id="double"),
+					],
+			)
+	@pytest.mark.parametrize(
+			"indent",
+			[
+					param('\t', id="tab"),
+					param("    ", id="4s"),
+					param("        ", id="8s"),
+					],
+			)
+	def test_docstrings(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			quotes: str,
+			indent: str,
+			advanced_file_regression: AdvancedFileRegressionFixture,
+			advanced_data_regression: AdvancedDataRegressionFixture,
+			):
+		docstring = textwrap.indent((source_dir / filename).read_text(), indent)
+		template = f"def foo():\n{indent}{quotes}\n" + "{d}" + f"{indent}{quotes}\n{indent}pass\n"
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text(template.format_map({'d': docstring}))
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+		dom_toml.dump(
+				{"tool": {"snippet-fmt": {"languages": languages, "directives": directives}}},
+				tmp_pathplus_clean / "pyproject.toml",
+				)
+
+		with in_directory(tmp_pathplus_clean):
+			runner = CliRunner(mix_stderr=False)
+			result = runner.invoke(
+					main,
+					args=[py_filename.name, "--no-colour", "--diff"],
+					)
+
+		advanced_file_regression.check_file(py_filename)
+
+		check_out(result, tmp_pathplus_clean, advanced_data_regression)
+
+		# Calling a second time shouldn't change anything
+		st = py_filename.stat()
+		assert st == st
+
+		with in_directory(tmp_pathplus_clean):
+			runner = CliRunner(mix_stderr=False)
+			runner.invoke(main, args=[filename])
+
+		# mtime should be the same
+		assert py_filename.stat().st_mtime == st.st_mtime
+
 
 @no_type_check
 def check_out(
