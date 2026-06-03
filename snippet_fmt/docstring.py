@@ -30,14 +30,14 @@ Docstring processing for formatting.
 import difflib
 import string
 from collections import deque
-from typing import List, NamedTuple, Optional, Sequence, Tuple
+from typing import Container, Iterator, List, NamedTuple, Optional, Sequence, Tuple
 
 # 3rd party
-import tokenize_rt
+import tokenize_rt  # type: ignore[import-untyped]
 from consolekit import terminal_colours
 from domdf_python_tools.stringlist import StringList
 
-__all__ = ["DocstringToken", "dedent", "get_parts", "get_tokens"]
+__all__ = ["dedent", "diff", "get_parts", "get_tokens"]
 
 
 class DocstringToken(NamedTuple):
@@ -55,12 +55,19 @@ class DocstringToken(NamedTuple):
 		return self.name == name and self.src == src
 
 
-def dedent(text):
+def dedent(docstring: str) -> Tuple[str, str]:
+	"""
+	Remove indentation from the docstring.
+
+	:param docstring:
+
+	:returns: The dedented docstring and the indentation used.
+	"""
 
 	try:
-		lines = text.split('\n')
+		lines = docstring.split('\n')
 	except (AttributeError, TypeError):
-		msg = f'expected str object, not {type(text).__qualname__!r}'
+		msg = f'expected str object, not {type(docstring).__qualname__!r}'
 		raise TypeError(msg) from None
 
 	# Get length of leading whitespace, inspired by ``os.path.commonprefix()``.
@@ -76,6 +83,12 @@ def dedent(text):
 
 
 def get_parts(docstring: str) -> Tuple[str, str, str, str]:
+	"""
+	Extract the docstring from the string literal and return prefix characters (e.g. ``u``), the quotes, indent, and the docstring.
+
+	:param docstring:
+	"""
+
 	docstring_string: str = docstring
 	prefix_char = ''
 
@@ -114,10 +127,31 @@ def get_parts(docstring: str) -> Tuple[str, str, str, str]:
 
 
 def get_tokens(source: str) -> List[tokenize_rt.Token]:
+	"""
+	Tokenize the given Python source, including special ``"DOCSTRING"`` tokens for function and class docstrings.
+
+	:param source:
+	"""
+
+	# TODO: module docstrings
 
 	original_tokens = deque(tokenize_rt.src_to_tokens(source))
 
 	tokens: List[tokenize_rt.Token] = []
+
+	def _readahead_in(next_token: tokenize_rt.Token, names: Container[str]) -> tokenize_rt.Token:
+		while next_token.name in names:
+			tokens.append(next_token)
+			next_token = original_tokens.popleft()
+
+		return next_token
+
+	def _readahead_not_in(next_token: tokenize_rt.Token, names: Container[str]) -> tokenize_rt.Token:
+		while next_token.name not in names:
+			tokens.append(next_token)
+			next_token = original_tokens.popleft()
+
+		return next_token
 
 	while original_tokens:
 		token = original_tokens.popleft()
@@ -127,18 +161,14 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 		if token.name == "NAME" and token.src in {"def", "class"}:
 			next_token = original_tokens.popleft()
 
-			while next_token.name in {"UNIMPORTANT_WS"}:
-				tokens.append(next_token)
-				next_token = original_tokens.popleft()
+			next_token = _readahead_in(next_token, {"UNIMPORTANT_WS"})
 
 			assert next_token.name == "NAME", next_token
 			function_name = next_token.src
 
 			# Readahead to body
 
-			while next_token.name not in {"INDENT"}:
-				tokens.append(next_token)
-				next_token = original_tokens.popleft()
+			next_token = _readahead_not_in(next_token, {"INDENT"})
 
 			while next_token.name not in {"STRING", "DEDENT"}:
 				tokens.append(next_token)
@@ -146,9 +176,7 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 
 				if next_token.name in {"OP", "NAME"}:
 					# Not going to be the docstring, lookahead to next line
-					while next_token.name not in {"NEWLINE"}:
-						tokens.append(next_token)
-						next_token = original_tokens.popleft()
+					next_token = _readahead_not_in(next_token, {"NEWLINE"})
 
 			if next_token.name == "STRING":
 
@@ -164,9 +192,9 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 
 	return tokens
 
-def _unified_diff(a, b, filename, offset):
+def _unified_diff(a: Sequence[str], b: Sequence[str], filename: str, offset: int) -> Iterator[str]:
 
-	difflib._check_types(a, b, filename)
+	difflib._check_types(a, b, filename)  # type: ignore[attr-defined]
 
 	started = False
 	for group in difflib.SequenceMatcher(None, a, b).get_grouped_opcodes(3):
@@ -176,8 +204,14 @@ def _unified_diff(a, b, filename, offset):
 			yield f"+++ {filename}\t(reformatted)"
 
 		first, last = group[0], group[-1]
-		file1_range = difflib._format_range_unified(first[1] + offset, last[2] + offset)
-		file2_range = difflib._format_range_unified(first[3] + offset, last[4] + offset)
+		file1_range = difflib._format_range_unified(  # type: ignore[attr-defined]
+			first[1] + offset,
+			last[2] + offset,
+		)
+		file2_range = difflib._format_range_unified(  # type: ignore[attr-defined]
+			first[3] + offset,
+			last[4] + offset,
+		)
 		yield f'@@ -{file1_range} +{file2_range} @@'
 
 		for tag, i1, i2, j1, j2 in group:
@@ -196,14 +230,20 @@ def _unified_diff(a, b, filename, offset):
 
 
 def diff(
-		a: Sequence[str],
-		b: Sequence[str],
-		filename: str,
 		token: tokenize_rt.Token,
+		reformatted: Sequence[str],
+		filename: str,
 		) -> str:
+	"""
+	Construct a diff for the reformatted docstring.
+
+	:param token: The docstring token.
+	:param reformatted: Reformatted docstring.
+	:param filename:
+	"""
 
 	buf = StringList()
-	diff = _unified_diff(a, b, filename, token.line - 1)
+	diff = _unified_diff(token.src.split('\n'), reformatted, filename, token.line - 1)
 
 	for line in diff:
 		if line.startswith('+'):

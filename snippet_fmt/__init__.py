@@ -40,7 +40,7 @@ from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 # 3rd party
 import click
 import entrypoints  # type: ignore[import-untyped]
-import tokenize_rt
+import tokenize_rt  # type: ignore[import-untyped]
 from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.utils import coloured_diff
 from domdf_python_tools.paths import PathPlus
@@ -146,7 +146,7 @@ class Reformatter:
 
 		return self._reformatted_source != self._unformatted_source or bool(self.errors)
 
-	def report_error(self, error: CodeBlockError):
+	def report_error(self, error: CodeBlockError) -> None:
 		"""
 		Print the error message.
 
@@ -288,7 +288,7 @@ class DocstringReformatter(Reformatter):
 	#: The docstring's indentation.
 	indent: str
 
-	def __init__(self, token, filename: PathLike, config: SnippetFmtConfigDict):
+	def __init__(self, token: tokenize_rt.Token, filename: PathLike, config: SnippetFmtConfigDict):
 		self.token = token
 
 		prefix_char, quote_char, indent, docstring = snippet_fmt.docstring.get_parts(token.src)
@@ -296,7 +296,20 @@ class DocstringReformatter(Reformatter):
 		self.quote_char = quote_char
 		self.indent = indent
 
-		super().__init__(docstring, filename, config)
+		super().__init__(docstring, PathPlus(filename).as_posix(), config)
+
+	def report_error(self, error: CodeBlockError) -> None:
+		"""
+		Print the error message.
+
+		:param error:
+		"""
+
+		lineno = self._unformatted_source[:error.offset].count('\n') + 1
+		click.echo(
+				f"{self.filename}:{lineno+self.token.line-1}: {error.exc.__class__.__name__}: {error.exc}",
+				err=True,
+				)
 
 	def get_diff(self) -> str:
 		"""
@@ -304,12 +317,10 @@ class DocstringReformatter(Reformatter):
 		"""
 
 		after = self.to_string().split('\n')
-		before = self.token.src.split('\n')
 		return snippet_fmt.docstring.diff(
-				before,
+				self.token,
 				after,
 				os.fspath(self.filename),
-				self.token,
 				)
 
 	def to_string(self) -> str:
