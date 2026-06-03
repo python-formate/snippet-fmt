@@ -2,6 +2,7 @@ coincidence>=0.2.0
 consolekit[testing]>=1.2.3
 coverage>=5.1
 coverage-pyver-pragma>=0.2.1
+formate-trailing-commas>=0.1.1
 importlib-metadata>=3.6.0
 pytest>=6.0.0
 pytest-cov>=2.8.1

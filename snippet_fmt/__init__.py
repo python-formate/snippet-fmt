@@ -59,7 +59,14 @@ __license__: str = "MIT License"
 __version__: str = "0.1.5"
 __email__: str = "dominic@davis-foster.co.uk"
 
-__all__ = ("CodeBlockError", "RSTReformatter", "reformat_file")
+__all__ = (
+		"CodeBlockError",
+		"DocstringReformatter",
+		"RSTReformatter",
+		"Reformatter",
+		"reformat_docstrings",
+		"reformat_file",
+		)
 
 TRAILING_NL_RE = re.compile(r'\n+\Z', re.MULTILINE)
 
@@ -92,7 +99,7 @@ class Reformatter:
 	"""
 
 	#: The filename being reformatted, as a POSIX-style path.
-	file_to_format: PathPlus
+	filename: str
 
 	#: The ``formate`` configuration, parsed from a TOML file (or similar).
 	config: SnippetFmtConfigDict
@@ -116,6 +123,23 @@ class Reformatter:
 				}
 		self.load_extra_formatters()
 
+	def compile_regex(self):
+		"""
+		Compile the regular expression for finding directives.
+		"""
+		directives = '|'.join(self.config["directives"])
+
+		return re.compile(
+				rf'(?P<before>'
+				rf'^(?P<indent>[ \t]*)\.\.[ \t]*('
+				rf'({directives})::\s*(?P<lang>[A-Za-z0-9-_]+)?)\n'
+				rf'((?P=indent)[ \t]+:.*\n)*'  # Limitation: should be `(?P=body_indent)` rather than `[ \t]+`
+				rf'\n*'
+				rf')'
+				rf'(?P<code>^((?P=indent)(?P<body_indent>[ \t]+).*)?\n(^((?P=indent)(?P=body_indent).*)?\n)*)',
+				re.MULTILINE,
+				)
+
 	def run(self) -> bool:
 		"""
 		Run the reformatter.
@@ -126,18 +150,7 @@ class Reformatter:
 		content = StringList(self._unformatted_source)
 		content.blankline(ensure_single=True)
 
-		directives = '|'.join(self.config["directives"])
-
-		pattern = re.compile(
-				rf'(?P<before>'
-				rf'^(?P<indent>[ \t]*)\.\.[ \t]*('
-				rf'({directives})::\s*(?P<lang>[A-Za-z0-9-_]+)?)\n'
-				rf'((?P=indent)[ \t]+:.*\n)*'  # Limitation: should be `(?P=body_indent)` rather than `[ \t]+`
-				rf'\n*'
-				rf')'
-				rf'(?P<code>^((?P=indent)(?P<body_indent>[ \t]+).*)?\n(^((?P=indent)(?P=body_indent).*)?\n)*)',
-				re.MULTILINE,
-				)
+		pattern = self.compile_regex()
 
 		self._reformatted_source = pattern.sub(self.process_match, str(content))
 
@@ -250,7 +263,7 @@ class RSTReformatter(Reformatter):
 	"""
 
 	#: The filename being reformatted.
-	filename: str
+	file_to_format: PathPlus
 
 	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
 		self.file_to_format = PathPlus(filename)
@@ -331,14 +344,19 @@ class DocstringReformatter(Reformatter):
 		if self._reformatted_source is None:
 			raise ValueError("'Reformatter.run()' must be called first!")
 
-		return ''.join([
+		parts = [
 				self.prefix_char,
 				self.quote_char,
 				textwrap.indent(self._reformatted_source, self.indent).rstrip(),
-				'\n',
-				self.indent,
-				self.quote_char,
-				])
+		]
+
+		if len(self.quote_char) == 3:
+			parts.append('\n')
+			parts.append(self.indent)
+		
+		parts.append(self.quote_char)
+
+		return ''.join(parts)
 
 	def to_token(self) -> tokenize_rt.Token:
 		return tokenize_rt.Token(
@@ -347,6 +365,26 @@ class DocstringReformatter(Reformatter):
 				line=self.token.line,
 				utf8_byte_offset=self.token.utf8_byte_offset,
 				)
+
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		content = StringList(self._unformatted_source)
+		if len(self.quote_char) == 3:
+			content.blankline(ensure_single=True)
+
+		pattern = self.compile_regex()
+
+		self._reformatted_source = pattern.sub(self.process_match, str(content))
+
+		for error in self.errors:
+			self.report_error(error)
+
+		return self._reformatted_source != self._unformatted_source
 
 
 def reformat_file(
@@ -390,7 +428,6 @@ def reformat_docstrings(
 	source = file.read_text()
 
 	original_tokens = snippet_fmt.docstring.get_tokens(source)
-
 	tokens: List[tokenize_rt.Token] = []
 
 	file_ret = 0
@@ -398,7 +435,6 @@ def reformat_docstrings(
 	for token in original_tokens:
 
 		if token.name == "DOCSTRING":
-
 			r = DocstringReformatter(token, file, config)
 
 			ret = r.run()

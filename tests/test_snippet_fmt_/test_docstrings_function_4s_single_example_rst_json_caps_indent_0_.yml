@@ -1,0 +1,6 @@
+err:
+- '.../example.py:114: JSONDecodeError: Expecting property name enclosed in double
+  quotes: line 4 column 1 (char 38)'
+- ''
+out:
+- ''

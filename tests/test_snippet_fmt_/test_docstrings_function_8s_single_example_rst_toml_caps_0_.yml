@@ -1,0 +1,24 @@
+err:
+- ''
+out:
+- "--- .../example.py\t(original)"
+- "+++ .../example.py\t(reformatted)"
+- '@@ -83,13 +83,9 @@'
+- '         .. code-block:: TOML'
+- ''
+- "         \t[project]"
+- '-'
+- '-'
+- "-        \tname   =   'my-project'"
+- '-'
+- '-'
+- "-        \tversion=\"1.2.3\""
+- "-        \tlicense = {file = \"LICENSE\"}"
+- "+        \tname = \"my-project\""
+- "+        \tversion = \"1.2.3\""
+- "+        \tlicense = { file = \"LICENSE\" }"
+- ''
+- ''
+- '         .. code:: TOML'
+- ''
+- ''

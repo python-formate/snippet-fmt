@@ -1,4 +1,7 @@
 # stdlib
+import shutil
+import textwrap
+from pathlib import Path
 from typing import Dict, Iterator, List, Union, no_type_check
 
 # 3rd party
@@ -13,7 +16,7 @@ from consolekit.testing import CliRunner, Result
 from domdf_python_tools.paths import PathPlus, TemporaryPathPlus, in_directory
 
 # this package
-from snippet_fmt import SnippetFmtConfigDict, reformat_file
+from snippet_fmt import SnippetFmtConfigDict, reformat_docstrings, reformat_file
 from snippet_fmt.__main__ import main
 
 source_dir = PathPlus(__file__).parent
@@ -83,7 +86,37 @@ languages = pytest.mark.parametrize(
 						),
 				],
 		)
-filenames = pytest.mark.parametrize("filename", [param("example.rst", idx=0)])
+filenames = pytest.mark.parametrize(
+		"filename",
+		[
+				param("example.rst", idx=0),
+				param("py_code.rst", idx=0),
+				],
+		)
+
+
+@pytest.fixture()
+def tmp_pathplus_clean(tmp_path: Path) -> Iterator[PathPlus]:
+	"""
+	Pytest fixture which returns a temporary directory in the form of a
+	:class:`~domdf_python_tools.paths.PathPlus` object.
+
+	The directory is unique to each test function invocation,
+	created as a sub directory of the base temporary directory.
+
+	Use it as follows:
+
+	.. code-block:: python
+
+		pytest_plugins = ("coincidence", )
+
+		def test_something(tmp_pathplus_clean: PathPlus):
+			assert True
+	"""  # noqa: D400
+
+	p = PathPlus(tmp_path)
+	yield p
+	shutil.rmtree(p)
 
 
 @pytest.fixture()
@@ -114,30 +147,159 @@ class TestReformatFile:
 	def test_snippet_fmt(
 			self,
 			filename: str,
-			tmp_pathplus: PathPlus,
+			tmp_pathplus_clean: PathPlus,
 			directives: List[str],
 			languages: Dict,
 			advanced_file_regression: AdvancedFileRegressionFixture,
 			advanced_data_regression: AdvancedDataRegressionFixture,
 			capsys,
 			):
-		(tmp_pathplus / filename).write_text((source_dir / filename).read_text())
-		(tmp_pathplus / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+		(tmp_pathplus_clean / filename).write_text((source_dir / filename).read_text())
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
 
 		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
 
-		with in_directory(tmp_pathplus):
-			reformat_file(tmp_pathplus / filename, config)
+		with in_directory(tmp_pathplus_clean):
+			reformat_file(tmp_pathplus_clean / filename, config)
 
-		advanced_file_regression.check_file(tmp_pathplus / filename)
-		check_out(capsys.readouterr(), tmp_pathplus, advanced_data_regression)
+		advanced_file_regression.check_file(tmp_pathplus_clean / filename)
+		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
+
+	@directives
+	@languages
+	@filenames
+	@pytest.mark.parametrize(
+			"quotes",
+			[
+					param("'''", id="single"),
+					param('"""', id="double"),
+					],
+			)
+	@pytest.mark.parametrize(
+			"indent",
+			[
+					param('\t', id="tab"),
+					param("    ", id="4s"),
+					param("        ", id="8s"),
+					],
+			)
+	def test_docstrings_function(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			quotes: str,
+			indent: str,
+			advanced_file_regression: AdvancedFileRegressionFixture,
+			advanced_data_regression: AdvancedDataRegressionFixture,
+			capsys,
+			):
+		docstring = textwrap.indent((source_dir / filename).read_text(), indent)
+		template = f"def foo():\n{indent}{quotes}\n" + "{d}" + f"{indent}{quotes}\n{indent}pass\n"
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text(template.format_map({'d': docstring}))
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		advanced_file_regression.check_file(py_filename)
+		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
+
+	@directives
+	@languages
+	@pytest.mark.parametrize(
+			"quotes",
+			[
+					param("'", id="single"),
+					param('"', id="double"),
+					],
+			)
+	@pytest.mark.parametrize(
+			"indent",
+			[
+					param('\t', id="tab"),
+					param("    ", id="4s"),
+					param("        ", id="8s"),
+					],
+			)
+	def test_docstrings_single_line(
+			self,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			quotes: str,
+			indent: str,
+			capsys,
+			):
+		source = f"def foo():\n{indent}{quotes}This is a single-line docstring{quotes}\n{indent}pass\n"
+		py_filename = (tmp_pathplus_clean / "example.py")
+		py_filename.write_text(source)
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		assert py_filename.read_text() == source
+		outerr = capsys.readouterr()
+		assert not outerr.out
+		assert not outerr.err
+
+	@directives
+	@languages
+	@filenames
+	def test_docstrings_empty_mod(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			):
+
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text('')
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		assert not py_filename.read_text()
+
+	@directives
+	@languages
+	@filenames
+	def test_docstrings_empty_fn(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			):
+
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text("def foo():\n\tpass\n")
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		assert py_filename.read_text() == "def foo():\n\tpass\n"
 
 	@pytest.mark.usefixtures("custom_entry_point")
 	@filenames
 	def test_snippet_fmt_custom_entry_point(
 			self,
 			filename: str,
-			tmp_pathplus: PathPlus,
+			tmp_pathplus_clean: PathPlus,
 			advanced_file_regression: AdvancedFileRegressionFixture,
 			advanced_data_regression: AdvancedDataRegressionFixture,
 			capsys,
@@ -146,16 +308,16 @@ class TestReformatFile:
 		languages = {"python3": {"reformat": True}}
 		directives = ["code-block", "code-cell"]
 
-		(tmp_pathplus / filename).write_text((source_dir / filename).read_text())
-		(tmp_pathplus / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+		(tmp_pathplus_clean / filename).write_text((source_dir / filename).read_text())
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
 
 		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
 
-		with in_directory(tmp_pathplus):
-			reformat_file(tmp_pathplus / filename, config)
+		with in_directory(tmp_pathplus_clean):
+			reformat_file(tmp_pathplus_clean / filename, config)
 
-		advanced_file_regression.check_file(tmp_pathplus / filename)
-		check_out(capsys.readouterr(), tmp_pathplus, advanced_data_regression)
+		advanced_file_regression.check_file(tmp_pathplus_clean / filename)
+		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
 
 class TestCLI:
@@ -166,42 +328,40 @@ class TestCLI:
 	def test_snippet_fmt(
 			self,
 			filename: str,
-			tmp_pathplus: PathPlus,
+			tmp_pathplus_clean: PathPlus,
 			directives: List[str],
 			languages: Dict,
 			advanced_file_regression: AdvancedFileRegressionFixture,
 			advanced_data_regression: AdvancedDataRegressionFixture,
-			capsys,
-			cli_runner: CliRunner,
 			):
-		(tmp_pathplus / filename).write_text((source_dir / filename).read_text())
-		(tmp_pathplus / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+		(tmp_pathplus_clean / filename).write_text((source_dir / filename).read_text())
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
 		dom_toml.dump(
 				{"tool": {"snippet-fmt": {"languages": languages, "directives": directives}}},
-				tmp_pathplus / "pyproject.toml",
+				tmp_pathplus_clean / "pyproject.toml",
 				)
 
-		with in_directory(tmp_pathplus):
+		with in_directory(tmp_pathplus_clean):
 			runner = CliRunner(mix_stderr=False)
 			result = runner.invoke(
 					main,
 					args=[filename, "--no-colour", "--diff"],
 					)
 
-		advanced_file_regression.check_file(tmp_pathplus / filename)
+		advanced_file_regression.check_file(tmp_pathplus_clean / filename)
 
-		check_out(result, tmp_pathplus, advanced_data_regression)
+		check_out(result, tmp_pathplus_clean, advanced_data_regression)
 
 		# Calling a second time shouldn't change anything
-		st = (tmp_pathplus / filename).stat()
+		st = (tmp_pathplus_clean / filename).stat()
 		assert st == st
 
-		with in_directory(tmp_pathplus):
+		with in_directory(tmp_pathplus_clean):
 			runner = CliRunner(mix_stderr=False)
 			runner.invoke(main, args=[filename])
 
 		# mtime should be the same
-		assert (tmp_pathplus / filename).stat().st_mtime == st.st_mtime
+		assert (tmp_pathplus_clean / filename).stat().st_mtime == st.st_mtime
 
 
 @no_type_check

@@ -1,0 +1,27 @@
+err:
+- ''
+out:
+- "--- .../py_code.py\t(original)"
+- "+++ .../py_code.py\t(reformatted)"
+- '@@ -4,14 +4,14 @@'
+- ''
+- " \t.. code-block:: python3"
+- ''
+- "-\t\t>>> for line in coloured_diff   ("
+- "+\t\t>>> for line in coloured_diff("
+- " \t\t... \t\t\"one two three four\".split(),"
+- " \t\t... \t\t\"zero one tree four\".split(),"
+- "-\t\t... \t\"Original\","
+- "-\t\t... \"Current\","
+- "+\t\t... \t\t\"Original\","
+- "+\t\t... \t\t\"Current\","
+- " \t\t... \t\t\"2005-01-26 23:30:50\","
+- " \t\t... \t\t\"2010-04-02 10:20:52\","
+- " \t\t... \t\tlineterm='',"
+- "-\t\t... \t):"
+- "-\t\t... \t\tprint(line)"
+- "+\t\t... \t\t):"
+- "+\t\t... \tprint(line)"
+- " \t'''"
+- ''
+- ''

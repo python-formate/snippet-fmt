@@ -47,12 +47,12 @@ class DocstringToken(NamedTuple):
 	utf8_byte_offset: Optional[int] = None
 	function_name: Optional[str] = None
 
-	@property
-	def offset(self) -> tokenize_rt.Offset:
-		return tokenize_rt.Offset(self.line, self.utf8_byte_offset)
+	# @property
+	# def offset(self) -> tokenize_rt.Offset:
+	# 	return tokenize_rt.Offset(self.line, self.utf8_byte_offset)
 
-	def matches(self, *, name: str, src: str) -> bool:
-		return self.name == name and self.src == src
+	# def matches(self, *, name: str, src: str) -> bool:
+	# 	return self.name == name and self.src == src
 
 
 def dedent(docstring: str) -> Tuple[str, str]:
