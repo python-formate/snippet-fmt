@@ -32,6 +32,7 @@ Format and validate code snippets in reStructuredText files.
 
 # stdlib
 import contextlib
+import os
 import re
 import textwrap
 from typing import Dict, Iterator, List, Match, NamedTuple, Optional
@@ -39,6 +40,7 @@ from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 # 3rd party
 import click
 import entrypoints  # type: ignore[import-untyped]
+import tokenize_rt
 from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.utils import coloured_diff
 from domdf_python_tools.paths import PathPlus
@@ -47,6 +49,7 @@ from domdf_python_tools.typing import PathLike
 from formate.utils import syntaxerror_for_file
 
 # this package
+import snippet_fmt.docstring
 from snippet_fmt.config import SnippetFmtConfigDict
 from snippet_fmt.formatters import Formatter, format_ini, format_json, format_python, format_toml, noformat
 
@@ -195,8 +198,8 @@ class Reformatter:
 		return coloured_diff(
 				before,
 				after,
-				self.filename,
-				self.filename,
+				os.fspath(self.filename),
+				os.fspath(self.filename),
 				"(original)",
 				"(reformatted)",
 				lineterm='',
@@ -260,6 +263,81 @@ class RSTReformatter(Reformatter):
 
 		self.file_to_format.write_text(self.to_string())
 
+
+class DocstringReformatter(Reformatter):
+	"""
+	Reformat code snippets in a docstring from a Python file.
+
+	:param token: The docstring token to format.
+	:param filename: The filename being reformated.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	#: The docstring token being reformatted.
+	token: tokenize_rt.Token
+
+	#: Letters before the string e.g. ``f``, ``u``, ``r``, ``fr``
+	prefix_char: str
+
+	#: Quotes used for the docstring, e.g. ``'`` or ``"""``
+	quote_char: str
+
+	#: The docstring's indentation.
+	indent: str
+
+	def __init__(self, token, filename: PathLike, config: SnippetFmtConfigDict):
+		self.token = token
+
+		prefix_char, quote_char, indent, docstring = snippet_fmt.docstring.get_parts(token.src)
+		self.prefix_char = prefix_char
+		self.quote_char = quote_char
+		self.indent = indent
+
+		super().__init__(docstring, filename, config)
+
+	def get_diff(self) -> str:
+		"""
+		Returns the diff between the original and reformatted file content.
+		"""
+
+		after = self.to_string().split('\n')
+		before = self.token.src.split('\n')
+		return snippet_fmt.docstring.diff(
+				before,
+				after,
+				os.fspath(self.filename),
+				self.token,
+				)
+
+	def to_string(self) -> str:
+		"""
+		Return the reformatted file as a string.
+		"""
+
+		if self._reformatted_source is None:
+			raise ValueError("'Reformatter.run()' must be called first!")
+
+		return ''.join([
+				self.prefix_char,
+				self.quote_char,
+				textwrap.indent(self._reformatted_source, self.indent).rstrip(),
+				'\n',
+				self.indent,
+				self.quote_char,
+				])
+
+	def to_token(self) -> tokenize_rt.Token:
+		return tokenize_rt.Token(
+				name="STRING",
+				src=self.to_string(),
+				line=self.token.line,
+				utf8_byte_offset=self.token.utf8_byte_offset,
+				)
+
+
 def reformat_file(
 		filename: PathLike,
 		config: SnippetFmtConfigDict,
@@ -282,3 +360,49 @@ def reformat_file(
 		r.to_file()
 
 	return ret
+
+
+def reformat_docstrings(
+		filename: PathLike,
+		config: SnippetFmtConfigDict,
+		colour: ColourTrilean = None,
+		) -> int:
+	"""
+	Reformat docstrings in the given Python file, and show the diff if changes were made.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet-fmt`` configuration, parsed from a TOML file (or similar).
+	:param colour: Whether to force coloured output on (:py:obj:`True`) or off (:py:obj:`False`).
+	"""
+
+	file = PathPlus(filename)
+	source = file.read_text()
+
+	original_tokens = snippet_fmt.docstring.get_tokens(source)
+
+	tokens: List[tokenize_rt.Token] = []
+
+	file_ret = 0
+
+	for token in original_tokens:
+
+		if token.name == "DOCSTRING":
+
+			r = DocstringReformatter(token, file, config)
+
+			ret = r.run()
+
+			if ret:
+				token = r.to_token()
+				click.echo(r.get_diff(), color=resolve_color_default(colour))
+				file_ret = True
+
+		tokens.append(token)
+
+	if file_ret:
+		file.write_text(tokenize_rt.tokens_to_src(tokens))
+		assert tokenize_rt.tokens_to_src(tokens) != source
+		return True
+	else:
+		assert tokenize_rt.tokens_to_src(tokens) == source
+		return False

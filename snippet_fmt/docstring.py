@@ -27,13 +27,15 @@ Docstring processing for formatting.
 #
 
 # stdlib
+import difflib
 import string
 from collections import deque
-from typing import List, NamedTuple, Optional, Tuple
+from typing import List, NamedTuple, Optional, Sequence, Tuple
 
 # 3rd party
 import tokenize_rt
-from domdf_python_tools.typing import PathLike
+from consolekit import terminal_colours
+from domdf_python_tools.stringlist import StringList
 
 __all__ = ["DocstringToken", "dedent", "get_parts", "get_tokens"]
 
@@ -161,3 +163,56 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 			tokens.append(next_token)
 
 	return tokens
+
+def _unified_diff(a, b, filename, offset):
+
+	difflib._check_types(a, b, filename)
+
+	started = False
+	for group in difflib.SequenceMatcher(None, a, b).get_grouped_opcodes(3):
+		if not started:
+			started = True
+			yield f"--- {filename}\t(original)"
+			yield f"+++ {filename}\t(reformatted)"
+
+		first, last = group[0], group[-1]
+		file1_range = difflib._format_range_unified(first[1] + offset, last[2] + offset)
+		file2_range = difflib._format_range_unified(first[3] + offset, last[4] + offset)
+		yield f'@@ -{file1_range} +{file2_range} @@'
+
+		for tag, i1, i2, j1, j2 in group:
+			if tag == "equal":
+				for line in a[i1:i2]:
+					yield ' ' + line
+				continue
+
+			if tag in {"replace", "delete"}:
+				for line in a[i1:i2]:
+					yield '-' + line
+
+			if tag in {"replace", "insert"}:
+				for line in b[j1:j2]:
+					yield '+' + line
+
+
+def diff(
+		a: Sequence[str],
+		b: Sequence[str],
+		filename: str,
+		token: tokenize_rt.Token,
+		) -> str:
+
+	buf = StringList()
+	diff = _unified_diff(a, b, filename, token.line - 1)
+
+	for line in diff:
+		if line.startswith('+'):
+			buf.append(terminal_colours.Fore.GREEN(line))
+		elif line.startswith('-'):
+			buf.append(terminal_colours.Fore.RED(line))
+		else:
+			buf.append(line)
+
+	buf.blankline(ensure_single=True)
+
+	return str(buf)
