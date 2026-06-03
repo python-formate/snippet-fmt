@@ -183,7 +183,7 @@ class TestReformatFile:
 					param("        ", id="8s"),
 					],
 			)
-	def test_docstrings_function(
+	def test_docstrings(
 			self,
 			filename: str,
 			tmp_pathplus_clean: PathPlus,
