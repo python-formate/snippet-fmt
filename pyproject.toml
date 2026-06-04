@@ -74,6 +74,7 @@ extensions = [
     "sphinx_favicon",
     "sphinx_toolbox_experimental.missing_xref",
     "sphinx_packaging",
+    "ignore_missing_xref",
 ]
 gitstamp_fmt = "%d %b %Y"
 templates_path = [ "_templates",]
