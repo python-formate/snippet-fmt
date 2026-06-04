@@ -210,17 +210,19 @@ class TestReformatFile:
 		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
 	@pytest.mark.parametrize(
-		"directives",
-		[
-				pytest.param(["code-block"], id='0'),
-		])
+			"directives",
+			[
+					pytest.param(["code-block"], id='0'),
+					],
+			)
 	@pytest.mark.parametrize(
-		"languages",
-		[
-				pytest.param({}, id="empty"),
-				pytest.param({"python": {"reformat": True}}, id="python"),
-				pytest.param({"python3": {"reformat": True}}, id="python3"),
-		])
+			"languages",
+			[
+					pytest.param({}, id="empty"),
+					pytest.param({"python": {"reformat": True}}, id="python"),
+					pytest.param({"python3": {"reformat": True}}, id="python3"),
+					],
+			)
 	@filenames
 	@pytest.mark.parametrize(
 			"quotes",
@@ -261,17 +263,19 @@ class TestReformatFile:
 		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
 	@pytest.mark.parametrize(
-		"directives",
-		[
-				pytest.param(["code-block"], id='0'),
-		])
+			"directives",
+			[
+					pytest.param(["code-block"], id='0'),
+					],
+			)
 	@pytest.mark.parametrize(
-		"languages",
-		[
-				pytest.param({}, id="empty"),
-				pytest.param({"python": {"reformat": True}}, id="python"),
-				pytest.param({"python3": {"reformat": True}}, id="python3"),
-		])
+			"languages",
+			[
+					pytest.param({}, id="empty"),
+					pytest.param({"python": {"reformat": True}}, id="python"),
+					pytest.param({"python3": {"reformat": True}}, id="python3"),
+					],
+			)
 	@filenames
 	@pytest.mark.parametrize(
 			"quotes",
@@ -297,7 +301,7 @@ class TestReformatFile:
 			advanced_data_regression: AdvancedDataRegressionFixture,
 			capsys,
 			):
-		docstring = textwrap.indent((source_dir / filename).read_text(), indent*2)
+		docstring = textwrap.indent((source_dir / filename).read_text(), indent * 2)
 		template = f"class foo():\n{indent}def bar():\n{indent*2}{quotes}\n" + "{d}" + f"{indent*2}{quotes}\n{indent*2}pass\n"
 		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
 		py_filename.write_text(template.format_map({'d': docstring}))
