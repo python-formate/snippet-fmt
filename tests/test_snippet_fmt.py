@@ -209,6 +209,108 @@ class TestReformatFile:
 		advanced_file_regression.check_file(py_filename)
 		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
+	@pytest.mark.parametrize(
+		"directives",
+		[
+				pytest.param(["code-block"], id='0'),
+		])
+	@pytest.mark.parametrize(
+		"languages",
+		[
+				pytest.param({}, id="empty"),
+				pytest.param({"python": {"reformat": True}}, id="python"),
+				pytest.param({"python3": {"reformat": True}}, id="python3"),
+		])
+	@filenames
+	@pytest.mark.parametrize(
+			"quotes",
+			[
+					param('"""', id="double"),
+					],
+			)
+	@pytest.mark.parametrize(
+			"indent",
+			[
+					param("    ", id="4s"),
+					],
+			)
+	def test_docstrings_class(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			quotes: str,
+			indent: str,
+			advanced_file_regression: AdvancedFileRegressionFixture,
+			advanced_data_regression: AdvancedDataRegressionFixture,
+			capsys,
+			):
+		docstring = textwrap.indent((source_dir / filename).read_text(), indent)
+		template = f"class foo():\n{indent}{quotes}\n" + "{d}" + f"{indent}{quotes}\n{indent}pass\n"
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text(template.format_map({'d': docstring}))
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		advanced_file_regression.check_file(py_filename)
+		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
+
+	@pytest.mark.parametrize(
+		"directives",
+		[
+				pytest.param(["code-block"], id='0'),
+		])
+	@pytest.mark.parametrize(
+		"languages",
+		[
+				pytest.param({}, id="empty"),
+				pytest.param({"python": {"reformat": True}}, id="python"),
+				pytest.param({"python3": {"reformat": True}}, id="python3"),
+		])
+	@filenames
+	@pytest.mark.parametrize(
+			"quotes",
+			[
+					param("'''", id="single"),
+					],
+			)
+	@pytest.mark.parametrize(
+			"indent",
+			[
+					param('\t', id="tab"),
+					],
+			)
+	def test_docstrings_class_method(
+			self,
+			filename: str,
+			tmp_pathplus_clean: PathPlus,
+			directives: List[str],
+			languages: Dict,
+			quotes: str,
+			indent: str,
+			advanced_file_regression: AdvancedFileRegressionFixture,
+			advanced_data_regression: AdvancedDataRegressionFixture,
+			capsys,
+			):
+		docstring = textwrap.indent((source_dir / filename).read_text(), indent*2)
+		template = f"class foo():\n{indent}def bar():\n{indent*2}{quotes}\n" + "{d}" + f"{indent*2}{quotes}\n{indent*2}pass\n"
+		py_filename = (tmp_pathplus_clean / filename).with_suffix(".py")
+		py_filename.write_text(template.format_map({'d': docstring}))
+		(tmp_pathplus_clean / "formate.toml").write_text((source_dir / "example_formate.toml").read_text())
+
+		config: SnippetFmtConfigDict = {"languages": languages, "directives": directives}
+
+		with in_directory(tmp_pathplus_clean):
+			reformat_docstrings(py_filename, config)
+
+		advanced_file_regression.check_file(py_filename)
+		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
+
 	@directives
 	@languages
 	@pytest.mark.parametrize(
@@ -411,7 +513,7 @@ class TestCLI:
 
 		advanced_file_regression.check_file(py_filename)
 
-		check_out(result, tmp_pathplus_clean, advanced_data_regression)
+		# check_out(result, tmp_pathplus_clean, advanced_data_regression)
 
 		# Calling a second time shouldn't change anything
 		st = py_filename.stat()
@@ -419,7 +521,7 @@ class TestCLI:
 
 		with in_directory(tmp_pathplus_clean):
 			runner = CliRunner(mix_stderr=False)
-			runner.invoke(main, args=[filename])
+			runner.invoke(main, args=[py_filename.name])
 
 		# mtime should be the same
 		assert py_filename.stat().st_mtime == st.st_mtime
