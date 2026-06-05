@@ -2,7 +2,7 @@
    name: snippet-fmt
    entry: snippet-fmt
    language: python
-   types_or: [rst]
+   types_or: [rst, python]
    require_serial: false
    args:
       - --verbose
