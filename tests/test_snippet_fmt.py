@@ -34,10 +34,8 @@ directives = pytest.mark.parametrize(
 				pytest.param(["code-block", "code", "parsed-literal"], id='7'),
 				],
 		)
-languages = pytest.mark.parametrize(
-		"languages",
-		[
-				pytest.param({}, id="empty"),
+base_languages = [
+	pytest.param({}, id="empty"),
 				pytest.param({"python": {"reformat": True}}, id="python"),
 				pytest.param({"python3": {"reformat": True}}, id="python3"),
 				pytest.param(
@@ -55,8 +53,10 @@ languages = pytest.mark.parametrize(
 				pytest.param(
 						{"ini": {"reformat": True}, "python": {"reformat": False}},
 						id="ini_python_false",
-						),
-				pytest.param({"JSON": {"reformat": True}}, id="json_caps", marks=max_version("3.12")),
+						)
+]
+json_languages = [
+	pytest.param({"JSON": {"reformat": True}}, id="json_caps", marks=max_version("3.12")),
 				pytest.param(
 						{"JSON": {"reformat": True}},
 						id="json_caps_new_error_msg",
@@ -83,8 +83,11 @@ languages = pytest.mark.parametrize(
 						{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
 						id="json_indent_new_error_msg",
 						marks=min_version("3.13"),
-						),
-				],
+						)
+]
+languages = pytest.mark.parametrize(
+		"languages",
+		base_languages+json_languages,
 		)
 filenames = pytest.mark.parametrize(
 		"filename",
@@ -166,7 +169,7 @@ class TestReformatFile:
 		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
 	@directives
-	@languages
+	@pytest.mark.parametrize("languages", base_languages)
 	@filenames
 	@pytest.mark.parametrize(
 			"quotes",
@@ -316,7 +319,7 @@ class TestReformatFile:
 		check_out(capsys.readouterr(), tmp_pathplus_clean, advanced_data_regression)
 
 	@directives
-	@languages
+	@pytest.mark.parametrize("languages", base_languages)
 	@pytest.mark.parametrize(
 			"quotes",
 			[
@@ -357,7 +360,7 @@ class TestReformatFile:
 		assert not outerr.err
 
 	@directives
-	@languages
+	@pytest.mark.parametrize("languages", base_languages)
 	@filenames
 	def test_docstrings_empty_mod(
 			self,
@@ -379,7 +382,7 @@ class TestReformatFile:
 		assert not py_filename.read_text()
 
 	@directives
-	@languages
+	@pytest.mark.parametrize("languages", base_languages)
 	@filenames
 	def test_docstrings_empty_fn(
 			self,
@@ -470,7 +473,7 @@ class TestCLI:
 		assert (tmp_pathplus_clean / filename).stat().st_mtime == st.st_mtime
 
 	@directives
-	@languages
+	@pytest.mark.parametrize("languages", base_languages)
 	@filenames
 	@pytest.mark.parametrize(
 			"quotes",
