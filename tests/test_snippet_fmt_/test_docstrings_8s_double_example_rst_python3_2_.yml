@@ -1,0 +1,24 @@
+err:
+- ''
+out:
+- "--- .../example.py\t(original)"
+- "+++ .../example.py\t(reformatted)"
+- '@@ -30,12 +30,11 @@'
+- '         .. code-cell:: python3'
+- "         \t:count: 1"
+- ''
+- "-        \tprint (  'Hello World'"
+- "+        \tprint(\"Hello World\")"
+- ''
+- "-        \t)"
+- '-'
+- "-        \tfor   item in [a,b,c]   :"
+- "-        \t\t\t\tif item: print(item)"
+- "+        \tfor item in [a, b, c]:"
+- "+        \t\tif item:"
+- "+        \t\t\tprint(item)"
+- ''
+- ''
+- '         .. code:: python'
+- ''
+- ''

@@ -32,6 +32,7 @@ Format and validate code snippets in reStructuredText files.
 
 # stdlib
 import contextlib
+import os
 import re
 import textwrap
 from typing import Dict, Iterator, List, Match, NamedTuple, Optional
@@ -39,6 +40,7 @@ from typing import Dict, Iterator, List, Match, NamedTuple, Optional
 # 3rd party
 import click
 import entrypoints  # type: ignore[import-untyped]
+import tokenize_rt  # type: ignore[import-untyped]
 from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.utils import coloured_diff
 from domdf_python_tools.paths import PathPlus
@@ -47,6 +49,7 @@ from domdf_python_tools.typing import PathLike
 from formate.utils import syntaxerror_for_file
 
 # this package
+import snippet_fmt.docstring
 from snippet_fmt.config import SnippetFmtConfigDict
 from snippet_fmt.formatters import Formatter, format_ini, format_json, format_python, format_toml, noformat
 
@@ -56,7 +59,15 @@ __license__: str = "MIT License"
 __version__: str = "0.1.5"
 __email__: str = "dominic@davis-foster.co.uk"
 
-__all__ = ("CodeBlockError", "RSTReformatter", "reformat_file")
+__all__ = (
+		"CodeBlockError",
+		"DocstringReformatter",
+		"PyReformatter",
+		"RSTReformatter",
+		"Reformatter",
+		"reformat_docstrings",
+		"reformat_file",
+		)
 
 TRAILING_NL_RE = re.compile(r'\n+\Z', re.MULTILINE)
 
@@ -76,33 +87,30 @@ class CodeBlockError(NamedTuple):
 # TODO: reformatter for docstrings
 
 
-class RSTReformatter:
+class Reformatter:
 	"""
-	Reformat code snippets in a reStructuredText file.
+	Base class for reformatters.
 
-	:param filename: The filename to reformat.
+	:param source: The file content.
+	:param filename: The file being formatted, for display in error messages.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
 
 	.. autosummary-widths:: 35/100
 	.. latex:clearpage::
 	"""
 
-	#: The filename being reformatted.
-	filename: str
-
 	#: The filename being reformatted, as a POSIX-style path.
-	file_to_format: PathPlus
+	filename: str
 
 	#: The ``formate`` configuration, parsed from a TOML file (or similar).
 	config: SnippetFmtConfigDict
 
 	errors: List[CodeBlockError]
 
-	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
-		self.file_to_format = PathPlus(filename)
-		self.filename = self.file_to_format.as_posix()
+	def __init__(self, source: str, filename: str, config: SnippetFmtConfigDict):
+		self.filename = filename
 		self.config = config
-		self._unformatted_source = self.file_to_format.read_text()
+		self._unformatted_source = source
 		self._reformatted_source: Optional[str] = None
 		self.errors = []
 
@@ -116,19 +124,13 @@ class RSTReformatter:
 				}
 		self.load_extra_formatters()
 
-	def run(self) -> bool:
+	def compile_regex(self) -> re.Pattern:
 		"""
-		Run the reformatter.
-
-		:return: Whether the file was changed.
+		Compile the regular expression for finding directives.
 		"""
-
-		content = StringList(self._unformatted_source)
-		content.blankline(ensure_single=True)
-
 		directives = '|'.join(self.config["directives"])
 
-		pattern = re.compile(
+		return re.compile(
 				rf'(?P<before>'
 				rf'^(?P<indent>[ \t]*)\.\.[ \t]*('
 				rf'({directives})::\s*(?P<lang>[A-Za-z0-9-_]+)?)\n'
@@ -139,13 +141,34 @@ class RSTReformatter:
 				re.MULTILINE,
 				)
 
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		content = StringList(self._unformatted_source)
+		content.blankline(ensure_single=True)
+
+		pattern = self.compile_regex()
+
 		self._reformatted_source = pattern.sub(self.process_match, str(content))
 
 		for error in self.errors:
-			lineno = self._unformatted_source[:error.offset].count('\n') + 1
-			click.echo(f"{self.filename}:{lineno}: {error.exc.__class__.__name__}: {error.exc}", err=True)
+			self.report_error(error)
 
 		return self._reformatted_source != self._unformatted_source
+
+	def report_error(self, error: CodeBlockError) -> None:
+		"""
+		Print the error message.
+
+		:param error:
+		"""
+
+		lineno = self._unformatted_source[:error.offset].count('\n') + 1
+		click.echo(f"{self.filename}:{lineno}: {error.exc.__class__.__name__}: {error.exc}", err=True)
 
 	def process_match(self, match: Match[str]) -> str:
 		"""
@@ -189,8 +212,8 @@ class RSTReformatter:
 		return coloured_diff(
 				before,
 				after,
-				self.filename,
-				self.filename,
+				os.fspath(self.filename),
+				os.fspath(self.filename),
 				"(original)",
 				"(reformatted)",
 				lineterm='',
@@ -205,13 +228,6 @@ class RSTReformatter:
 			raise ValueError("'Reformatter.run()' must be called first!")
 
 		return self._reformatted_source
-
-	def to_file(self) -> None:
-		"""
-		Write the reformatted source to the original file.
-		"""
-
-		self.file_to_format.write_text(self.to_string())
 
 	@contextlib.contextmanager
 	def _collect_error(self, match: Match[str]) -> Iterator[None]:
@@ -236,6 +252,190 @@ class RSTReformatter:
 						self._formatters[name] = ep.load()
 
 
+class RSTReformatter(Reformatter):
+	"""
+	Reformat code snippets in a reStructuredText file.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	#: The filename being reformatted.
+	file_to_format: PathPlus
+
+	def __init__(self, filename: PathLike, config: SnippetFmtConfigDict):
+		self.file_to_format = PathPlus(filename)
+		super().__init__(self.file_to_format.read_text(), self.file_to_format.as_posix(), config)
+
+	def to_file(self) -> None:
+		"""
+		Write the reformatted source to the original file.
+		"""
+
+		self.file_to_format.write_text(self.to_string())
+
+
+class DocstringReformatter(Reformatter):
+	"""
+	Reformat code snippets in a docstring from a Python file.
+
+	:param token: The docstring token to format.
+	:param filename: The filename being reformated.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	#: The docstring token being reformatted.
+	token: tokenize_rt.Token
+
+	#: Letters before the string e.g. ``f``, ``u``, ``r``, ``fr``
+	prefix_char: str
+
+	#: Quotes used for the docstring, e.g. ``'`` or ``"""``
+	quote_char: str
+
+	#: The docstring's indentation.
+	indent: str
+
+	def __init__(self, token: tokenize_rt.Token, filename: PathLike, config: SnippetFmtConfigDict):
+		self.token = token
+
+		prefix_char, quote_char, indent, docstring = snippet_fmt.docstring.get_parts(token.src)
+		self.prefix_char = prefix_char
+		self.quote_char = quote_char
+		self.indent = indent
+
+		super().__init__(docstring, PathPlus(filename).as_posix(), config)
+
+	def report_error(self, error: CodeBlockError) -> None:
+		"""
+		Print the error message.
+
+		:param error:
+		"""
+
+		lineno = self._unformatted_source[:error.offset].count('\n') + 1
+		click.echo(
+				f"{self.filename}:{lineno+self.token.line-1}: {error.exc.__class__.__name__}: {error.exc}",
+				err=True,
+				)
+
+	def get_diff(self) -> str:
+		"""
+		Returns the diff between the original and reformatted file content.
+		"""
+
+		after = self.to_string().split('\n')
+		return snippet_fmt.docstring.diff(
+				self.token,
+				after,
+				os.fspath(self.filename),
+				)
+
+	def to_string(self) -> str:
+		"""
+		Return the reformatted file as a string.
+		"""
+
+		if self._reformatted_source is None:
+			raise ValueError("'Reformatter.run()' must be called first!")
+
+		parts = [
+				self.prefix_char,
+				self.quote_char,
+				textwrap.indent(self._reformatted_source, self.indent).rstrip(),
+				]
+
+		if len(self.quote_char) == 3:
+			parts.append('\n')
+			parts.append(self.indent)
+
+		parts.append(self.quote_char)
+
+		return ''.join(parts)
+
+	def to_token(self) -> tokenize_rt.Token:
+		"""
+		Return the docstring as a token for ``tokenize_rt``.
+		"""
+
+		return tokenize_rt.Token(
+				name="STRING",
+				src=self.to_string(),
+				line=self.token.line,
+				utf8_byte_offset=self.token.utf8_byte_offset,
+				)
+
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		content = StringList(self._unformatted_source)
+		if len(self.quote_char) == 3:
+			content.blankline(ensure_single=True)
+
+		pattern = self.compile_regex()
+
+		self._reformatted_source = pattern.sub(self.process_match, str(content))
+
+		for error in self.errors:
+			self.report_error(error)
+
+		return self._reformatted_source != self._unformatted_source
+
+
+class PyReformatter(RSTReformatter):
+	"""
+	Reformat code snippets in docstrings in a Python file.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
+
+	.. autosummary-widths:: 35/100
+	.. latex:clearpage::
+	"""
+
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		original_tokens = snippet_fmt.docstring.get_tokens(self._unformatted_source)
+		tokens: List[tokenize_rt.Token] = []
+
+		file_ret = 0
+
+		for token in original_tokens:
+
+			if token.name == "DOCSTRING":
+				r = DocstringReformatter(token, self.file_to_format, self.config)
+
+				with syntaxerror_for_file(self.filename):
+					if r.run():
+						token = r.to_token()
+						file_ret = True
+
+			tokens.append(token)
+
+		self._reformatted_source = tokenize_rt.tokens_to_src(tokens)
+		if file_ret:
+			assert tokenize_rt.tokens_to_src(tokens) != self._unformatted_source
+			return True
+		else:
+			assert tokenize_rt.tokens_to_src(tokens) == self._unformatted_source
+			return False
+
+
 def reformat_file(
 		filename: PathLike,
 		config: SnippetFmtConfigDict,
@@ -258,3 +458,46 @@ def reformat_file(
 		r.to_file()
 
 	return ret
+
+
+def reformat_docstrings(
+		filename: PathLike,
+		config: SnippetFmtConfigDict,
+		colour: ColourTrilean = None,
+		) -> int:
+	"""
+	Reformat docstrings in the given Python file, and show the diff if changes were made.
+
+	:param filename: The filename to reformat.
+	:param config: The ``snippet-fmt`` configuration, parsed from a TOML file (or similar).
+	:param colour: Whether to force coloured output on (:py:obj:`True`) or off (:py:obj:`False`).
+	"""
+
+	file = PathPlus(filename)
+	source = file.read_text()
+
+	original_tokens = snippet_fmt.docstring.get_tokens(source)
+	tokens: List[tokenize_rt.Token] = []
+
+	file_ret = 0
+
+	for token in original_tokens:
+
+		if token.name == "DOCSTRING":
+			r = DocstringReformatter(token, file, config)
+
+			with syntaxerror_for_file(file.name):
+				if r.run():
+					token = r.to_token()
+					click.echo(r.get_diff(), color=resolve_color_default(colour))
+					file_ret = True
+
+		tokens.append(token)
+
+	if file_ret:
+		file.write_text(tokenize_rt.tokens_to_src(tokens))
+		assert tokenize_rt.tokens_to_src(tokens) != source
+		return True
+	else:
+		assert tokenize_rt.tokens_to_src(tokens) == source
+		return False

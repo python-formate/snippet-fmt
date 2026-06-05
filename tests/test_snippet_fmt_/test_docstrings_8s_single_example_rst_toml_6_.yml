@@ -1,0 +1,25 @@
+err:
+- '.../example.py:108: TOMLDecodeError: Expected "''" (at end of document)'
+- ''
+out:
+- "--- .../example.py\t(original)"
+- "+++ .../example.py\t(reformatted)"
+- '@@ -71,13 +71,9 @@'
+- '         .. code-block:: toml'
+- ''
+- "         \t[project]"
+- '-'
+- '-'
+- "-        \tname   =   'my-project'"
+- '-'
+- '-'
+- "-        \tversion=\"1.2.3\""
+- "-        \tlicense = {file = \"LICENSE\"}"
+- "+        \tname = \"my-project\""
+- "+        \tversion = \"1.2.3\""
+- "+        \tlicense = { file = \"LICENSE\" }"
+- ''
+- ''
+- '         .. code-block:: TOML'
+- ''
+- ''

@@ -1,0 +1,33 @@
+err:
+- ''
+out:
+- "--- .../example.py\t(original)"
+- "+++ .../example.py\t(reformatted)"
+- '@@ -14,18 +14,18 @@'
+- ''
+- " \t\t.. code-block:: python3"
+- ''
+- "-\t\t\tprint (  'Hello World'"
+- "+\t\t\tprint(\"Hello World\")"
+- ''
+- "-\t\t\t)"
+- '-'
+- "-\t\t\tfor   item in [a,b,c]   :"
+- "-\t\t\t\t\t\tif item: print(item)"
+- "+\t\t\tfor item in [a, b, c]:"
+- "+\t\t\t\tif item:"
+- "+\t\t\t\t\tprint(item)"
+- ''
+- ''
+- " \t\t.. code-block:: python3"
+- ''
+- "-\t\t\tfor   item in [a,b,c]   :"
+- "-\t\t\t    if item: print(item)"
+- "+\t\t\tfor item in [a, b, c]:"
+- "+\t\t\t\tif item:"
+- "+\t\t\t\t\tprint(item)"
+- ''
+- ''
+- " \t\t.. code-cell:: python3"
+- ''
+- ''

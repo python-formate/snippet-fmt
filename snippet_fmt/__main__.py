@@ -38,6 +38,9 @@ from consolekit.terminal_colours import ColourTrilean, resolve_color_default
 from consolekit.tracebacks import handle_tracebacks, traceback_option
 from domdf_python_tools.typing import PathLike
 
+# this package
+from snippet_fmt import PyReformatter
+
 __all__ = ("main", )
 
 
@@ -102,13 +105,17 @@ def main(
 
 		path = PathPlus(path).abspath()
 
-		if path.suffix != ".rst" or path.is_dir():
+		if path.suffix not in {".rst", ".py"} or path.is_dir():
 			if verbose >= 2:
 				click.echo(f"Skipping {path} as it doesn't appear to be a reStructuredText file")
 
 			continue
 
-		r = RSTReformatter(path, config=config)
+		if path.suffix == ".rst":
+			r = RSTReformatter(path, config=config)
+		else:
+			assert path.suffix == ".py"
+			r = PyReformatter(path, config=config)
 
 		with handle_tracebacks(show_traceback, cls=SyntaxTracebackHandler):
 			ret_for_file = r.run()

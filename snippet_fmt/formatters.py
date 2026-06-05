@@ -102,14 +102,33 @@ def format_python(code: str, **config) -> str:
 	:returns: The reformatted code.
 	"""
 
+	is_console = True
+	console_prompts = []
+
+	code_lines = code.splitlines()
+	for line in code_lines:
+		if not is_console:
+			break
+
+		if line and not line.isspace():
+			is_console = line.startswith("... ") or line.startswith(">>> ")
+
+	if is_console:
+		console_prompts = [l[:4] for l in code_lines]
+		code = '\n'.join([l[4:] for l in code_lines])
+
 	if config.get("reformat", False):
 		formate_config = formate.config.load_toml(config.get("config-file", "formate.toml"))
 		r = StringReformatter(code, formate_config)
 		r.run()
-		return r.to_string()
+		code = r.to_string()
 	else:
 		ast.parse(code)
-		return code
+
+	if is_console:
+		return '\n'.join([p + l for p, l in zip(console_prompts, code.splitlines())])
+
+	return code
 
 
 def format_toml(code: str, **config) -> str:

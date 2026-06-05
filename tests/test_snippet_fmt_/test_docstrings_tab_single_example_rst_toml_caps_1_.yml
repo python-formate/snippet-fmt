@@ -1,0 +1,6 @@
+err:
+- '.../example.py:95: TOMLDecodeError: Invalid initial character for a key part (at
+  line 8, column 12)'
+- ''
+out:
+- ''
