@@ -2,6 +2,12 @@
 Changelog
 ===============
 
+v0.2.0
+----------
+
+Added support for formatting code blocks in Python docstrings.
+
+
 v0.1.4
 ----------
 

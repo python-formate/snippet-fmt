@@ -95,8 +95,7 @@ class Reformatter:
 	:param filename: The file being formatted, for display in error messages.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
 
-	.. autosummary-widths:: 35/100
-	.. latex:clearpage::
+	.. versionadded:: 0.2.0
 	"""
 
 	#: The filename being reformatted, as a POSIX-style path.
@@ -127,7 +126,10 @@ class Reformatter:
 	def compile_regex(self) -> re.Pattern:
 		"""
 		Compile the regular expression for finding directives.
+
+		.. versionadded:: 0.2.0
 		"""
+
 		directives = '|'.join(self.config["directives"])
 
 		return re.compile(
@@ -165,6 +167,8 @@ class Reformatter:
 		Print the error message.
 
 		:param error:
+
+		.. versionadded:: 0.2.0
 		"""
 
 		lineno = self._unformatted_source[:error.offset].count('\n') + 1
@@ -258,9 +262,6 @@ class RSTReformatter(Reformatter):
 
 	:param filename: The filename to reformat.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
-
-	.. autosummary-widths:: 35/100
-	.. latex:clearpage::
 	"""
 
 	#: The filename being reformatted.
@@ -286,8 +287,7 @@ class DocstringReformatter(Reformatter):
 	:param filename: The filename being reformated.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
 
-	.. autosummary-widths:: 35/100
-	.. latex:clearpage::
+	.. versionadded:: 0.2.0
 	"""
 
 	#: The docstring token being reformatted.
@@ -399,8 +399,7 @@ class PyReformatter(RSTReformatter):
 	:param filename: The filename to reformat.
 	:param config: The ``snippet_fmt`` configuration, parsed from a TOML file (or similar).
 
-	.. autosummary-widths:: 35/100
-	.. latex:clearpage::
+	.. versionadded:: 0.2.0
 	"""
 
 	def run(self) -> bool:
@@ -470,7 +469,11 @@ def reformat_docstrings(
 
 	:param filename: The filename to reformat.
 	:param config: The ``snippet-fmt`` configuration, parsed from a TOML file (or similar).
-	:param colour: Whether to force coloured output on (:py:obj:`True`) or off (:py:obj:`False`).
+	:param colour: Whether to force coloured output on (:py:obj:`True`) or off (:py:obj:`False`).v
+
+	:rtype:
+
+	.. versionadded:: 0.2.0
 	"""
 
 	file = PathPlus(filename)

@@ -3,6 +3,8 @@
 #  docstring.py
 """
 Docstring processing for formatting.
+
+.. versionadded:: 0.2.0
 """
 #
 #  Copyright © 2026 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -191,6 +193,7 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 			tokens.append(next_token)
 
 	return tokens
+
 
 def _unified_diff(a: Sequence[str], b: Sequence[str], filename: str, offset: int) -> Iterator[str]:
 
