@@ -35,59 +35,59 @@ directives = pytest.mark.parametrize(
 				],
 		)
 base_languages = [
-	pytest.param({}, id="empty"),
-				pytest.param({"python": {"reformat": True}}, id="python"),
-				pytest.param({"python3": {"reformat": True}}, id="python3"),
-				pytest.param(
-						{"python3": {"reformat": True}, "toml": {"reformat": False}},
-						id="python3_toml_false",
-						),
-				pytest.param({"TOML": {"reformat": True}}, id="toml_caps"),
-				pytest.param({"toml": {"reformat": True}}, id="toml"),
-				pytest.param(
-						{"toml": {"reformat": True}, "python": {"reformat": False}},
-						id="toml_python_false",
-						),
-				pytest.param({"INI": {"reformat": True}}, id="ini_caps"),
-				pytest.param({"ini": {"reformat": True}}, id="ini"),
-				pytest.param(
-						{"ini": {"reformat": True}, "python": {"reformat": False}},
-						id="ini_python_false",
-						)
-]
+		pytest.param({}, id="empty"),
+		pytest.param({"python": {"reformat": True}}, id="python"),
+		pytest.param({"python3": {"reformat": True}}, id="python3"),
+		pytest.param(
+				{"python3": {"reformat": True}, "toml": {"reformat": False}},
+				id="python3_toml_false",
+				),
+		pytest.param({"TOML": {"reformat": True}}, id="toml_caps"),
+		pytest.param({"toml": {"reformat": True}}, id="toml"),
+		pytest.param(
+				{"toml": {"reformat": True}, "python": {"reformat": False}},
+				id="toml_python_false",
+				),
+		pytest.param({"INI": {"reformat": True}}, id="ini_caps"),
+		pytest.param({"ini": {"reformat": True}}, id="ini"),
+		pytest.param(
+				{"ini": {"reformat": True}, "python": {"reformat": False}},
+				id="ini_python_false",
+				),
+		]
 json_languages = [
-	pytest.param({"JSON": {"reformat": True}}, id="json_caps", marks=max_version("3.12")),
-				pytest.param(
-						{"JSON": {"reformat": True}},
-						id="json_caps_new_error_msg",
-						marks=min_version("3.13"),
-						),
-				pytest.param({"json": {"reformat": True}}, id="json", marks=max_version("3.12")),
-				pytest.param({"json": {"reformat": True}}, id="json_new_error_msg", marks=min_version("3.13")),
-				pytest.param(
-						{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
-						id="json_caps_indent",
-						marks=max_version("3.12"),
-						),
-				pytest.param(
-						{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
-						id="json_caps_indent_new_error_msg",
-						marks=min_version("3.13"),
-						),
-				pytest.param(
-						{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
-						id="json_indent",
-						marks=max_version("3.12"),
-						),
-				pytest.param(
-						{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
-						id="json_indent_new_error_msg",
-						marks=min_version("3.13"),
-						)
-]
+		pytest.param({"JSON": {"reformat": True}}, id="json_caps", marks=max_version("3.12")),
+		pytest.param(
+				{"JSON": {"reformat": True}},
+				id="json_caps_new_error_msg",
+				marks=min_version("3.13"),
+				),
+		pytest.param({"json": {"reformat": True}}, id="json", marks=max_version("3.12")),
+		pytest.param({"json": {"reformat": True}}, id="json_new_error_msg", marks=min_version("3.13")),
+		pytest.param(
+				{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
+				id="json_caps_indent",
+				marks=max_version("3.12"),
+				),
+		pytest.param(
+				{"JSON": {"reformat": True, "indent": 2}, "json": {"reformat": True}},
+				id="json_caps_indent_new_error_msg",
+				marks=min_version("3.13"),
+				),
+		pytest.param(
+				{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
+				id="json_indent",
+				marks=max_version("3.12"),
+				),
+		pytest.param(
+				{"json": {"reformat": True, "indent": 2}, "JSON": {"reformat": True}},
+				id="json_indent_new_error_msg",
+				marks=min_version("3.13"),
+				),
+		]
 languages = pytest.mark.parametrize(
 		"languages",
-		base_languages+json_languages,
+		base_languages + json_languages,
 		)
 filenames = pytest.mark.parametrize(
 		"filename",

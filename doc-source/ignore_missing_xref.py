@@ -8,5 +8,6 @@ def handle_missing_xref(app: Sphinx, env, node: nodes.Node, contnode: nodes.Node
 	if node.get("reftarget", '').startswith("tokenize_rt."):
 		raise NoUri
 
+
 def setup(app: Sphinx):
 	app.connect("missing-reference", handle_missing_xref, priority=950)
