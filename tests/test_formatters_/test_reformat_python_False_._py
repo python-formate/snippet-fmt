@@ -1,0 +1,10 @@
+class F:
+	from collections.abc import Iterable
+	from collections import Counter
+
+	def foo(self):
+		pass
+
+
+print("hello world")
+assert t.uname == "\udce4\udcf6\udcfc"

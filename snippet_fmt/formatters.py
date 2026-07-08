@@ -36,6 +36,7 @@ from typing import Any, List, NamedTuple, Optional
 
 # 3rd party
 import dom_toml
+from domdf_python_tools.stringlist import StringList
 import formate
 from domdf_python_tools.paths import PathPlus
 
@@ -49,6 +50,7 @@ __all__ = (
 		)
 
 # 3rd party
+from formate.config import get_hooks_for_filetype, parse_hooks
 from typing_extensions import Protocol
 
 
@@ -75,13 +77,14 @@ def noformat(code: str, **config) -> str:
 
 class StringReformatter(formate.Reformatter):
 
-	def __init__(self, code: str, config: formate.FormateConfigDict):
+	def __init__(self, code: str, config: formate.FormateConfigDict, sort_imports: bool = True):
 		self.file_to_format = PathPlus(os.devnull)  # in case someone tries to write to the file
 		self.filename = "snippet.py"
 		self.filetype = ".py"
 		self.config = config
 		self._unformatted_source = code
 		self._reformatted_source: Optional[str] = None
+		self.sort_imports = sort_imports
 
 	def to_file(self) -> None:  # pragma: no cover
 		"""
@@ -90,6 +93,26 @@ class StringReformatter(formate.Reformatter):
 
 		raise NotImplementedError(f"Unsupported by {self.__class__!r}")
 
+	def run(self) -> bool:
+		"""
+		Run the reformatter.
+
+		:return: Whether the file was changed.
+		"""
+
+		hooks = parse_hooks(self.config)
+		hooks = get_hooks_for_filetype(self.filetype, hooks)
+		
+		isort_comment = "#" if self.sort_imports else "# isort: skip_file"
+
+		unformatted_source = f"{isort_comment}\n"  + self._unformatted_source
+		reformatted_source = StringList(formate.call_hooks(hooks, unformatted_source, self.filename))
+		reformatted_source.blankline(ensure_single=True)
+		assert reformatted_source.pop(0) == isort_comment
+
+		self._reformatted_source = str(reformatted_source)
+
+		return self._reformatted_source != self._unformatted_source
 
 class _ConsoleBlock(NamedTuple):
 	is_code: bool
@@ -133,8 +156,9 @@ def _format_pycon(code_lines: List[str], **config) -> str:
 	reformatted_blocks: List[_ConsoleBlock] = []
 	for block in blocks:
 		if block.is_code:
-			reformatted_code = format_python("# isort: skip_file\n" + block.as_python(), **config)
-			reformatted_blocks.append(_ConsoleBlock(True, reformatted_code.splitlines()[1:]))
+			config = {**config, "sort_imports": False}
+			reformatted_code = format_python(block.as_python(), **config)
+			reformatted_blocks.append(_ConsoleBlock(True, reformatted_code.splitlines()))
 		else:
 			reformatted_blocks.append(block)
 
@@ -159,7 +183,7 @@ def format_python(code: str, **config) -> str:
 
 	if config.get("reformat", False):
 		formate_config = formate.config.load_toml(config.get("config-file", "formate.toml"))
-		r = StringReformatter(code, formate_config)
+		r = StringReformatter(code, formate_config, config.get("sort_imports", True))
 		r.run()
 		return r.to_string()
 	else:

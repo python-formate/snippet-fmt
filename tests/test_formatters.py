@@ -21,9 +21,11 @@ def test_noformat(code: str):
 	assert noformat(code, reformat=True) == code
 
 
+@pytest.mark.parametrize("sort_imports", [True, False])
 def test_reformat_python(
 		tmp_pathplus: PathPlus,
 		advanced_file_regression: AdvancedFileRegressionFixture,
+		sort_imports: bool,
 		):
 
 	example_formate_toml = PathPlus(__file__).parent / "example_formate.toml"
@@ -48,7 +50,7 @@ def test_reformat_python(
 		assert format_python(code, reformat=False) == code
 
 		advanced_file_regression.check(
-				format_python(code, reformat=True),
+				format_python(code, reformat=True, sort_imports=sort_imports),
 				extension="._py",
 				)
 
