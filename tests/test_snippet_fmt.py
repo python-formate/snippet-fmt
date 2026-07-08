@@ -599,6 +599,16 @@ def baz():
 		>>> for i in hill_order('H', 'C[12]', 'O'):
 		... 	print(i, end='')
 		CHO
+
+	.. code-block:: python
+
+		>>> for _ in range(5):
+		... 	print("Hello World")
+		Hello World
+		Hello World
+		Hello World
+		Hello World
+		Hello World
 	"""
 
 '''

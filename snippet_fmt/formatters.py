@@ -152,7 +152,7 @@ def _format_pycon(code_lines: List[str], **config) -> str:
 			if blocks[-1].is_code:
 				blocks.append(_ConsoleBlock(False, [line]))
 			else:
-				blocks[-1].lines.append(line[4:])
+				blocks[-1].lines.append(line)
 
 	reformatted_blocks: List[_ConsoleBlock] = []
 	for block in blocks:
