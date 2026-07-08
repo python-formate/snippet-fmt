@@ -73,7 +73,7 @@ def dedent(docstring: str) -> Tuple[str, str]:
 		raise TypeError(msg) from None
 
 	# Get length of leading whitespace, inspired by ``os.path.commonprefix()``.
-	non_blank_lines = [l for l in lines if l and not l.isspace()]
+	non_blank_lines = [l for l in lines[1:] if l and not l.isspace()]
 	l1 = min(non_blank_lines, default='')
 	l2 = max(non_blank_lines, default='')
 	margin = 0
@@ -81,7 +81,12 @@ def dedent(docstring: str) -> Tuple[str, str]:
 		if c != l2[margin] or c not in " \t":
 			break
 
-	return '\n'.join([l[margin:] if not l.isspace() else '' for l in lines]), l1[:margin]
+	margin_str = l1[:margin]
+	if not lines[0].startswith(margin_str):
+		# First line may not be indented if same line as opening quotes
+		lines[0] = margin_str + lines[0]
+
+	return '\n'.join([l[margin:] if not l.isspace() else '' for l in lines]), margin_str
 
 
 def get_parts(docstring: str) -> Tuple[str, str, str, str]:

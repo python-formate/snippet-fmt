@@ -346,11 +346,12 @@ class DocstringReformatter(Reformatter):
 		if self._reformatted_source is None:
 			raise ValueError("'Reformatter.run()' must be called first!")
 
-		parts = [
-				self.prefix_char,
-				self.quote_char,
-				textwrap.indent(self._reformatted_source, self.indent).rstrip(),
-				]
+		reformatted_source_lines = self._reformatted_source.splitlines()
+
+		# Don't indent the first line, which is either blank of text immediately following the opening quotes
+		parts = [self.prefix_char, self.quote_char, reformatted_source_lines[0]]
+
+		parts.extend(("\n" + (self.indent + line if line else '')) for line in reformatted_source_lines[1:])
 
 		if len(self.quote_char) == 3:
 			parts.append('\n')
