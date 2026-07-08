@@ -418,12 +418,14 @@ class PyReformatter(RSTReformatter):
 		for token in original_tokens:
 
 			if token.name == "DOCSTRING":
-				r = DocstringReformatter(token, self.file_to_format, self.config)
+				# Must have at least one newline to have snippets
+				if token.src.find("\n") > -1:
+					r = DocstringReformatter(token, self.file_to_format, self.config)
 
-				with syntaxerror_for_file(self.filename):
-					if r.run():
-						token = r.to_token()
-						file_ret = True
+					with syntaxerror_for_file(self.filename):
+						if r.run():
+							token = r.to_token()
+							file_ret = True
 
 			tokens.append(token)
 
