@@ -117,6 +117,7 @@ class Reformatter:
 				"bash": noformat,
 				"python": format_python,
 				"python3": format_python,
+				"pycon": format_python,
 				"toml": format_toml,
 				"ini": format_ini,
 				"json": format_json,

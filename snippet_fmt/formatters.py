@@ -32,11 +32,10 @@ import json
 import os
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, Optional
+from typing import Any, List, NamedTuple, Optional
 
 # 3rd party
 import dom_toml
-import dom_toml.decoder
 import formate
 from domdf_python_tools.paths import PathPlus
 
@@ -92,6 +91,56 @@ class StringReformatter(formate.Reformatter):
 		raise NotImplementedError(f"Unsupported by {self.__class__!r}")
 
 
+class _ConsoleBlock(NamedTuple):
+	is_code: bool
+	lines: List[str]
+
+	def as_python(self) -> str:
+		return '\n'.join(self.lines)
+
+	def as_pycon(self) -> str:
+		if self.is_code:
+			buf = [f">>> {self.lines[0]}"]
+			buf.extend(f"... {line}" for line in self.lines[1:])
+			return '\n'.join(buf)
+		else:
+			return '\n'.join(self.lines)
+
+
+def _format_pycon(code_lines: List[str], **config) -> str:
+	r"""
+	Check the syntax of, and reformat, the given Python console snippet.
+
+	:param code_lines: The code to check and reformat.
+	:param \*\*config: The language-specific configuration.
+
+	:returns: The reformatted code.
+	"""
+
+	# Split into blocks of code (>>> and any subsequent ...s) and outputs (unprefixed)
+	blocks: List[_ConsoleBlock] = []
+	for line in code_lines:
+		if line.startswith(">>> "):
+			blocks.append(_ConsoleBlock(True, [line[4:]]))
+		elif line.startswith("... "):
+			blocks[-1].lines.append(line[4:])
+		else:
+			if blocks[-1].is_code:
+				blocks.append(_ConsoleBlock(False, [line]))
+			else:
+				blocks[-1].lines.append(line[4:])
+
+	reformatted_blocks: List[_ConsoleBlock] = []
+	for block in blocks:
+		if block.is_code:
+			reformatted_code = format_python("# isort: skip_file\n" + block.as_python(), **config)
+			reformatted_blocks.append(_ConsoleBlock(True, reformatted_code.splitlines()[1:]))
+		else:
+			reformatted_blocks.append(block)
+
+	return '\n'.join(block.as_pycon() for block in reformatted_blocks)
+
+
 def format_python(code: str, **config) -> str:
 	r"""
 	Check the syntax of, and reformat, the given Python code.
@@ -102,33 +151,20 @@ def format_python(code: str, **config) -> str:
 	:returns: The reformatted code.
 	"""
 
-	is_console = True
-	console_prompts = []
-
 	code_lines = code.splitlines()
-	for line in code_lines:
-		if not is_console:
-			break
+	is_console = any(line.startswith(">>> ") for line in code_lines)
 
-		if line and not line.isspace():
-			is_console = line.startswith("... ") or line.startswith(">>> ")
-
-	if is_console:
-		console_prompts = [l[:4] for l in code_lines]
-		code = '\n'.join([l[4:] for l in code_lines])
+	if is_console and not config.get("__internal_no_console", False):
+		return _format_pycon(code_lines, __internal_no_console=True, **config)
 
 	if config.get("reformat", False):
 		formate_config = formate.config.load_toml(config.get("config-file", "formate.toml"))
 		r = StringReformatter(code, formate_config)
 		r.run()
-		code = r.to_string()
+		return r.to_string()
 	else:
 		ast.parse(code)
-
-	if is_console:
-		return '\n'.join([p + l for p, l in zip(console_prompts, code.splitlines())])
-
-	return code
+		return code
 
 
 def format_toml(code: str, **config) -> str:

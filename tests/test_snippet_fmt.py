@@ -16,8 +16,10 @@ from consolekit.testing import CliRunner, Result
 from domdf_python_tools.paths import PathPlus, TemporaryPathPlus, in_directory
 
 # this package
-from snippet_fmt import SnippetFmtConfigDict, reformat_docstrings, reformat_file
+from snippet_fmt import PyReformatter, SnippetFmtConfigDict, reformat_docstrings, reformat_file
 from snippet_fmt.__main__ import main
+from snippet_fmt.config import load_toml
+from tests.test_config import PYPROJECT_LANGUAGES_A
 
 source_dir = PathPlus(__file__).parent
 
@@ -112,6 +114,7 @@ def tmp_pathplus_clean(tmp_path: Path) -> Iterator[PathPlus]:
 	.. code-block:: python
 
 		pytest_plugins = ("coincidence", )
+
 
 		def test_something(tmp_pathplus_clean: PathPlus):
 			assert True
@@ -499,7 +502,6 @@ class TestCLI:
 			quotes: str,
 			indent: str,
 			advanced_file_regression: AdvancedFileRegressionFixture,
-			advanced_data_regression: AdvancedDataRegressionFixture,
 			):
 		docstring = textwrap.indent((source_dir / filename).read_text(), indent)
 		template = f"def foo():\n{indent}{quotes}\n" + "{d}" + f"{indent}{quotes}\n{indent}pass\n"
@@ -557,3 +559,53 @@ def check_out(
 			}
 
 	advanced_data_regression.check(data_dict)
+
+
+def test_code_block(tmp_pathplus: PathPlus, advanced_file_regression: AdvancedFileRegressionFixture):
+	py_code = '''\
+def foo():
+	"""
+
+	.. code-block:: python
+
+		>>> string_to_unicode("NH4+")
+		'NH₄⁺'
+		>>> string_to_unicode( "Fe(CN)6+2" )
+		'Fe(CN)₆²⁺'
+		>>> string_to_unicode('Fe(CN)6+2(aq)')
+		'Fe(CN)₆²⁺(aq)'
+		>>> string_to_unicode(".NHO-(aq)")
+		'⋅NHO⁻(aq)'
+		>>> string_to_unicode("alpha-FeOOH(s)")
+		'α-FeOOH(s)'
+	"""
+
+
+def bar():
+	"""
+
+	.. code-block:: python
+
+		>>> for i in hill_order("H", "C[12]", 'O'): print(i, end='')
+		CHO
+	"""
+
+
+def baz():
+	"""
+
+	.. code-block:: python
+
+		>>> for i in hill_order('H', 'C[12]', 'O'):
+		... 	print(i, end='')
+		CHO
+	"""
+
+'''
+
+	(tmp_pathplus / "code.py").write_text(py_code)
+	(tmp_pathplus / "pyproject.toml").write_text(PYPROJECT_LANGUAGES_A)
+	config = load_toml(tmp_pathplus / "pyproject.toml")
+	r = PyReformatter((tmp_pathplus / "code.py"), config=config)
+	r.run()
+	advanced_file_regression.check(r.to_string(), extension=".py")
