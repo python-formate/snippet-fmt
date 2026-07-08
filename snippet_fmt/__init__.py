@@ -382,7 +382,12 @@ class DocstringReformatter(Reformatter):
 
 		content = StringList(self._unformatted_source)
 		if len(self.quote_char) == 3:
-			content.blankline(ensure_single=True)
+			# Allow at most 2 newlines (1 clear line and the triple quote on its own line)
+			if content[-1]:  # Last line has content
+				content.blankline()
+			elif not content[-2]:
+				content.blankline(ensure_single=True)
+				content.blankline()
 
 		pattern = self.compile_regex()
 
