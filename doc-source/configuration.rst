@@ -79,6 +79,13 @@ Reformatting Python_ files with formate_.
 	If set to ``true`` the code blocks matching this language and capitalisation will be reformatted, otherwise they will only be syntax checked.
 
 
+.. tconf:: python.sort_imports
+	:type: :toml:`Boolean`
+	:default: True
+
+	If set to ``true``, and ``isort`` is enabled in the formate configuration file, imports will be sorted, If ``false`` or the snippet is for the Python REPL imports are left unchanged.
+
+
 .. tconf:: python.config-file
 	:type: :toml:`String`
 	:default: formate.toml
