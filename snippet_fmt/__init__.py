@@ -351,7 +351,7 @@ class DocstringReformatter(Reformatter):
 		# Don't indent the first line, which is either blank of text immediately following the opening quotes
 		parts = [self.prefix_char, self.quote_char, reformatted_source_lines[0]]
 
-		parts.extend(("\n" + (self.indent + line if line else '')) for line in reformatted_source_lines[1:])
+		parts.extend(('\n' + (self.indent + line if line else '')) for line in reformatted_source_lines[1:])
 
 		if len(self.quote_char) == 3:
 			parts.append('\n')
@@ -425,7 +425,7 @@ class PyReformatter(RSTReformatter):
 
 			if token.name == "DOCSTRING":
 				# Must have at least one newline to have snippets
-				if token.src.find("\n") > -1:
+				if token.src.find('\n') > -1:
 					r = DocstringReformatter(token, self.file_to_format, self.config)
 
 					with syntaxerror_for_file(self.filename):

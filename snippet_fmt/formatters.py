@@ -102,10 +102,10 @@ class StringReformatter(formate.Reformatter):
 
 		hooks = parse_hooks(self.config)
 		hooks = get_hooks_for_filetype(self.filetype, hooks)
-		
-		isort_comment = "#" if self.sort_imports else "# isort: skip_file"
 
-		unformatted_source = f"{isort_comment}\n"  + self._unformatted_source
+		isort_comment = '#' if self.sort_imports else "# isort: skip_file"
+
+		unformatted_source = f"{isort_comment}\n" + self._unformatted_source
 		reformatted_source = StringList(formate.call_hooks(hooks, unformatted_source, self.filename))
 		reformatted_source.blankline(ensure_single=True)
 		assert reformatted_source.pop(0) == isort_comment
@@ -113,6 +113,7 @@ class StringReformatter(formate.Reformatter):
 		self._reformatted_source = str(reformatted_source)
 
 		return self._reformatted_source != self._unformatted_source
+
 
 class _ConsoleBlock(NamedTuple):
 	is_code: bool

@@ -608,4 +608,4 @@ def baz():
 	config = load_toml(tmp_pathplus / "pyproject.toml")
 	r = PyReformatter((tmp_pathplus / "code.py"), config=config)
 	r.run()
-	advanced_file_regression.check(r.to_string(), extension=".py")
+	advanced_file_regression.check(r.to_string(), extension="._py")
