@@ -175,15 +175,15 @@ def get_tokens(source: str) -> List[tokenize_rt.Token]:
 
 			# Readahead to body
 
-			next_token = _readahead_not_in(next_token, {"INDENT"})
+			next_token = _readahead_not_in(next_token, {"INDENT", "ENDMARKER"})
 
-			while next_token.name not in {"STRING", "DEDENT"}:
+			while next_token.name not in {"STRING", "DEDENT", "ENDMARKER"}:
 				tokens.append(next_token)
 				next_token = original_tokens.popleft()
 
 				if next_token.name in {"OP", "NAME"}:
 					# Not going to be the docstring, lookahead to next line
-					next_token = _readahead_not_in(next_token, {"NEWLINE"})
+					next_token = _readahead_not_in(next_token, {"NEWLINE", "ENDMARKER"})
 
 			if next_token.name == "STRING":
 
